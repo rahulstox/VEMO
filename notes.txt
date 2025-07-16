@@ -1,0 +1,48 @@
+Why are we using the react query ?
+Ans.. We are using the react query just beecz 
+thr main part is to fetch data and cache data.
+React Query provides several key benefits for our application:
+
+1. Automatic Background Updates
+- Handles data refetching in the background
+- Keeps UI in sync with server data
+- Manages cache invalidation and updates
+
+2. Caching & State Management 
+- Built-in caching mechanism reduces API calls
+- Maintains loading/error states automatically
+- Deduplicates multiple requests for same data
+- Configurable cache time and stale time
+
+3. Optimistic Updates
+- Allows updating UI before server response
+- Rolls back changes if request fails
+- Provides better UX with instant feedback
+
+4. Server State Management
+- Separates server state from client state
+- Handles complex async data flows
+- Manages pagination, infinite scroll etc.
+
+5. Developer Experience
+- Hooks based API (useQuery, useMutation)
+- DevTools for debugging
+- TypeScript support
+- Minimal boilerplate code
+
+In our codebase, we use it for:
+- Fetching workspace folders (useQueryData)
+- Handling folder mutations (useMutationData) 
+- Managing optimistic updates for folder renames
+- Maintaining loading states during API calls
+
+
+useQuery = Get Data with a query Key 
+
+useMutation = Update Data
+what is useMutation and wwhy we use it ?
+Ans. useMutation is a hook that allows us to update data in our application.
+
+useMutuationState = get the latest opyimistic values data that was  sennt into the mutate functiion when it was called using the use mututation hook
+
+prefetch queries-:
