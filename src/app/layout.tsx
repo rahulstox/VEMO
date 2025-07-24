@@ -1,33 +1,36 @@
-import type { Metadata } from 'next'
-import localFont from 'next/font/local'
-import { Manrope, DM_Sans } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
-
-import './globals.css'
-import { ThemeProvider } from '@/components/theme'
-import ReactQueryProvider from '@/react-query'
-import { ReduxProvider } from '@/redux/provider'
-import { Toaster } from 'sonner'
-
-const manrope = DM_Sans({ subsets: ['latin'] })
+import type { Metadata } from "next";
+import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Manrope } from "next/font/google";
+import { ThemeProvider } from "@/components/theme";
+import ReactQueryProvider from "@/react-query";
+import { ReduxProvider } from "@/redux/provider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: 'Vemo',
-  description: 'Share AI powered videos with your friends.',
-}
+  title: "Opal",
+  description: "Share AI powered video with your friends",
+};
+
+const manrope = Manrope({
+  subsets: ['latin'],
+})
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${manrope.className} bg-[#171717]`}>
+        <body
+          className={`${manrope.className} bg-[#171717]`}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
+            enableSystem
             disableTransitionOnChange
           >
             <ReduxProvider>
@@ -40,5 +43,5 @@ export default function RootLayout({
         </body>
       </html>
     </ClerkProvider>
-  )
+  );
 }

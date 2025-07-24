@@ -1,51 +1,48 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000']
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
-const isProtectedRoutes = createRouteMatcher(['/dashboard(.*)', '/payment(.*)'])
+const isProtectedRoutes = createRouteMatcher([
+  "/dashboard(.*)",
+  "/payment(.*)",
+  "/api(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const origin = req.headers.get('origin') ?? ''
-  const isAllowedOrigin = allowedOrigins.includes(origin)
-
   // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
-      ...corsOptions,
-    }
-    return NextResponse.json({}, { headers: preflightHeaders })
+  if (req.method === "OPTIONS") {
+    return NextResponse.json(
+      {},
+      {
+        headers: corsOptions,
+      }
+    );
   }
 
   // Handle protected routes
   if (isProtectedRoutes(req)) {
-    console.log(auth);
+    auth.protect();
   }
 
   // Handle simple requests
-  const response = NextResponse.next()
-
-  if (isAllowedOrigin) {
-    response.headers.set('Access-Control-Allow-Origin', origin)
-  }
+  const response = NextResponse.next();
 
   Object.entries(corsOptions).forEach(([key, value]) => {
-    response.headers.set(key, value)
-  })
+    response.headers.set(key, value);
+  });
 
-  return response
-})
+  return response;
+});
 
 export const config = {
   matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
   ],
-}
+};
