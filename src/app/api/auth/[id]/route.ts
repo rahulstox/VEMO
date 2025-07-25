@@ -1,13 +1,12 @@
-
-import { client } from '@/lib/prisma'
-import { clerkClient } from '@clerk/nextjs/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { client } from "@/lib/prisma";
+import { clerkClient } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
   { params: { id } }: { params: { id: string } }
 ) {
-  console.log('Enpoint hit ✅')
+  console.log("Endpoint hit ✅");
 
   try {
     const userProfile = await client.user.findUnique({
@@ -22,10 +21,11 @@ export async function GET(
           },
         },
       },
-    })
+    });
     if (userProfile)
-      return NextResponse.json({ status: 200, user: userProfile })
-    const clerkUserInstance = await clerkClient.users.getUser(id)
+      return NextResponse.json({ status: 200, user: userProfile });
+    const clerkclient = await clerkClient();
+    const clerkUserInstance = await clerkclient.users.getUser(id);
     const createUser = await client.user.create({
       data: {
         clerkid: id,
@@ -38,7 +38,7 @@ export async function GET(
         workspace: {
           create: {
             name: `${clerkUserInstance.firstName}'s Workspace`,
-            type: 'PERSONAL',
+            type: "PERSONAL",
           },
         },
         subscription: {
@@ -52,12 +52,12 @@ export async function GET(
           },
         },
       },
-    })
+    });
 
-    if (createUser) return NextResponse.json({ status: 201, user: createUser })
+    if (createUser) return NextResponse.json({ status: 201, user: createUser });
 
-    return NextResponse.json({ status: 400 })
+    return NextResponse.json({ status: 400 });
   } catch (error) {
-    console.log('ERROR', error)
+    console.log("ERROR", error);
   }
 }

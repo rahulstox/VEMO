@@ -144,7 +144,7 @@ return (
       <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
         <div className="bg-neutral-900 rounded-lg p-6 text-white w-[350px] space-y-4 shadow-xl">
           <h3 className="text-lg font-semibold">Duplicate Folder Name</h3>
-          <p>A folder named <strong>"{pendingRename}"</strong> already exists. Do you want to replace it?</p>
+          <p>A folder named <strong>&quot;{pendingRename}&quot;</strong> already exists. Do you want to replace it?</p>
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={handleCancelRename} // ✅ cancel rename

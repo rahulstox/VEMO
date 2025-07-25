@@ -1,7 +1,7 @@
-import { UseMutateFunction } from '@tanstack/react-query'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import z, { ZodSchema } from 'zod'
+import { UseMutateFunction } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import z, { ZodSchema } from "zod";
 
 const useZodForm = (
   schema: ZodSchema,
@@ -17,10 +17,10 @@ const useZodForm = (
   } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { ...defaultValues },
-  })
+  });
 
-  const onFormSubmit = handleSubmit(async (values) => mutation({ ...values }))
+  const onFormSubmit = handleSubmit(async (values) => mutation({ ...values }));
 
-  return { register, watch, reset, onFormSubmit, errors }
-}
-export default useZodForm
+  return { register, watch, reset, onFormSubmit, errors };
+};
+export default useZodForm;

@@ -1,13 +1,14 @@
-import React from 'react'
 import { Spinner } from '@/components/global/loader/spinner'
+import React from 'react'
+
 type Props = {}
 
-const Authloading = (props: Props) => {
+const AuthLoading = (props: Props) => {
   return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <Spinner />
+    <div className="flex h-screen w-full justify-center items-center">
+        <Spinner />
     </div>
   )
 }
 
-export default Authloading
+export default AuthLoading

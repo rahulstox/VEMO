@@ -3,9 +3,15 @@
 import { client } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import nodemailer from "nodemailer";
-import Stripe from "stripe";
+import Razorpay from "razorpay";
+import crypto from "crypto";
 
-const stripe = new Stripe(process.env.STRIPE_CLIENT_SECRET as string);
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
+
+
 
 export const sendEmail = async (
   to: string,
@@ -564,34 +570,43 @@ export const acceptInvite = async (inviteId: string) => {
   }
 };
 
-export const completeSubscription = async (session_id: string) => {
+export const completeSubscription = async (
+  orderId: string,
+  paymentId: string,
+  razorpaySignature: string
+) => {
   try {
     const user = await currentUser();
-    if (!user) return { status: 404 };
+    if (!user) return { status: 403 };
 
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-    if (session) {
-      const customer = await client.user.update({
-        where: {
-          clerkid: user.id,
-        },
-        data: {
-          subscription: {
-            update: {
-              data: {
-                customerId: session.customer as string,
-                plan: "PRO",
-              },
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET!)
+      .update(orderId + "|" + paymentId)
+      .digest("hex");
+
+    if (generatedSignature !== razorpaySignature) {
+      return { status: 401, message: "Invalid signature" };
+    }
+
+    const updatedUser = await client.user.update({
+      where: {
+        clerkid: user.id,
+      },
+      data: {
+        subscription: {
+          update: {
+            data: {
+              customerId: paymentId,
+              plan: "PRO",
             },
           },
         },
-      });
-      if (customer) {
-        return { status: 200 };
-      }
-    }
-    return { status: 404 };
+      },
+    });
+
+    return updatedUser ? { status: 200 } : { status: 400 };
   } catch (error) {
-    return { status: 404 };
+    console.error("Subscription error:", error);
+    return { status: 500, message: "Server error" };
   }
 };

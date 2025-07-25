@@ -4,12 +4,12 @@ type Props = {
     children: React.ReactNode
 }
 
-const layout = ({children}: Props) => {
+const Layout = ({children}: Props) => {
   return (
     <div className="container h-screen flex justify-center items-center">
-    {children}
-  </div>
+        {children}
+    </div>
   )
 }
 
-export default layout
+export default Layout

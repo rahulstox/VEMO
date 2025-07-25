@@ -1,33 +1,30 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import Razorpay from "razorpay";
 
-const stripe = new Stripe(process.env.STRIPE_CLIENT_SECRET as string);
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID as string,
+  key_secret: process.env.RAZORPAY_KEY_SECRET as string,
+});
 
 export async function GET() {
-  console.log(process.env.STRIPE_CLIENT_SECRET, "GEt endpoint hit👉🏻");
-  const user = await currentUser();
-  if (!user) return NextResponse.json({ status: 404 });
-  const priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID;
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    success_url: `${process.env.NEXT_PUBLIC_HOST_URL}/payment?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_HOST_URL}/payment?cancel=true`,
-  });
+  try {
+    const user = await currentUser();
+    if (!user) return NextResponse.json({ status: 404 });
 
-  if (session) {
+    const subscription = await razorpay.subscriptions.create({
+      plan_id: process.env.RAZORPAY_PLAN_ID!,
+      customer_notify: 1,
+      total_count: 12, // Optional: limit how many times to charge (e.g., 12 months)
+    });
+
     return NextResponse.json({
       status: 200,
-      session_url: session.url,
-      customer_id: session.customer,
+      subscription_id: subscription.id,
+      user_email: user.emailAddresses[0]?.emailAddress,
     });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ status: 500 });
   }
-
-  return NextResponse.json({ status: 400 });
 }

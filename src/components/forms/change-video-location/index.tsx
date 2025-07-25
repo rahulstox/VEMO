@@ -1,3 +1,4 @@
+"use client"
 import Loader from '@/components/global/loader'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -7,30 +8,31 @@ import { useMoveVideos } from '@/hooks/useFolders'
 import React from 'react'
 
 type Props = {
-  videoId: string
+    videoId: string
   currentFolder?: string
   currentWorkSpace?: string
   currentFolderName?: string
 }
 
-const ChangeVideoLocation = ({
-  videoId,
-  currentFolder,
-  currentFolderName,
-  currentWorkSpace,
-}: Props) => {
-  const {
-    register,
-    isPending,
-    onFormSubmit,
-    folders,
-    workspaces,
-    isFetching,
-    isFolders,
-  } = useMoveVideos(videoId, currentWorkSpace!)
 
-  const folder = folders.find((f) => f.id === currentFolder)
-  const workspace = workspaces.find((f) => f.id === currentWorkSpace)
+const ChangeVideoLocation = ({
+    videoId,
+    currentFolder,
+    currentFolderName,
+    currentWorkSpace,
+}: Props) => {
+    const {
+        register,
+        isPending,
+        onFormSubmit,
+        folders,
+        workspaces,
+        isFetching,
+        isFolders,
+    } = useMoveVideos(videoId,currentWorkSpace!)
+
+    const folder = folders.find((f) => f.id === currentFolder)
+    const workspace = workspaces.find((f) => f.id === currentWorkSpace)
 
   return (
     <form
@@ -104,7 +106,6 @@ const ChangeVideoLocation = ({
       <Button>
         <Loader
           state={isPending}
-          color="#000"
         >
           Transfer
         </Loader>

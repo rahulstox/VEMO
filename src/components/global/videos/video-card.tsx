@@ -90,7 +90,7 @@ const VideoCard = (props: Props) => {
                   size={12}
                 />
                 <p className="text-xs text-[#9D9D9D] capitalize">
-                  {props.User?.firstname}'s Workspace
+                  {props.User?.firstname}&#39;s Workspace
                 </p>
               </span>
             </div>

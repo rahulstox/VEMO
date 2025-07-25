@@ -1,8 +1,6 @@
 import React from 'react';
 import { getNotifications, onAuthenticateUser } from "@/actions/user"; // Functions to fetch user-related data
 import {
-  getAllUserVideos,
-  getWorkspaceFolders,
   getWorkSpaces,
   verifyAccessToWorkspace,
 } from "@/actions/workspace"; // Functions to fetch workspace-related data
