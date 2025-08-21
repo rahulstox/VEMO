@@ -1,14 +1,19 @@
-'use client'
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import FolderReducer from './slices/folders'
-import WorkSpaceReducer from './slices/workspaces'
+"use client";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useSelector } from "react-redux";
+import { createSlice } from "@reduxjs/toolkit";
 
-import { TypedUseSelectorHook, useSelector } from 'react-redux'
+// Create a placeholder slice to keep the store valid
+const placeholderSlice = createSlice({
+  name: "placeholder",
+  initialState: {},
+  reducers: {},
+});
 
 const rootReducer = combineReducers({
-  FolderReducer,
-  WorkSpaceReducer,
-})
+  // Add the placeholder reducer here
+  placeholder: placeholderSlice.reducer,
+});
 
 export const store = configureStore({
   reducer: rootReducer,
@@ -16,9 +21,11 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: false,
     }),
-})
+});
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+

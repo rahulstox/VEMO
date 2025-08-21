@@ -2,14 +2,21 @@ import { onAuthenticateUser } from '@/actions/user'
 import { redirect } from 'next/navigation'
 
 const AuthCallbackPage = async () => {
-  const auth = await onAuthenticateUser();
-  if(auth.status === 200 || auth.status === 201) {
-    return redirect(`/dashboard/${auth.user?.workspace[0].id}`)
+  const authResponse = await onAuthenticateUser();
+  
+  // Check karein ki user aur workspace dono maujood hain
+  if (authResponse.user && authResponse.user.workspace && authResponse.user.workspace.length > 0) {
+    // Pehle workspace par redirect karein
+    return redirect(`/dashboard/${authResponse.user.workspace[0].id}`);
+  }
+  
+  // Agar user naya hai ya workspace nahi hai, to /dashboard par bhejein
+  if (authResponse.status === 201 || authResponse.status === 200) {
+    return redirect('/dashboard');
   }
 
-  if(auth.status === 403 || auth.status === 500 || auth.status === 404) {
-    return redirect("/auth/sign-in")
-  }
+  // Agar authentication fail ho, to sign-in par wapas bhejein
+  return redirect("/auth/sign-in");
 }
 
-export default AuthCallbackPage
+export default AuthCallbackPage;

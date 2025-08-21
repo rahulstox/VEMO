@@ -1,3 +1,5 @@
+// src/app/api/recording/[id]/processing/route.ts (Corrected)
+
 import { client } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,32 +11,27 @@ export async function POST(
     const body = await req.json();
     const { id } = params;
 
-    const personalworkspaceId = await client.user.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        workspace: {
-          where: {
-            type: "PERSONAL",
-          },
-          select: {
-            id: true,
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        },
-      },
-    });
+    // Step 1: Request body se `workspaceId` get karein.
+    // Yeh desktop app se bheja jaana chahiye.
+    const { filename, workspaceId } = body;
+
+    if (!filename || !workspaceId) {
+      return NextResponse.json({
+        status: 400,
+        message: "Filename and workspaceId are required.",
+      });
+    }
+
+    // Step 2: Hamesha personal workspace find karne ke bajaaye,
+    // seedha provide ki gayi workspaceId ka istemaal karein.
     const startProcessingVideo = await client.workSpace.update({
       where: {
-        id: personalworkspaceId?.workspace[0].id,
+        id: workspaceId, // Yahan seedha workspaceId ka istemaal karein
       },
       data: {
         videos: {
           create: {
-            source: body.filename,
+            source: filename,
             userId: id,
           },
         },
@@ -58,8 +55,13 @@ export async function POST(
         plan: startProcessingVideo.User?.subscription?.plan,
       });
     }
-    return NextResponse.json({ status: 400 });
+
+    return NextResponse.json({
+      status: 400,
+      message: "Failed to create video record in the specified workspace.",
+    });
   } catch (error) {
-    console.log("🔴 Error in processing video", error);
+    console.error("🔴 Error in processing video", error);
+    return NextResponse.json({ status: 500, message: "Internal Server Error" });
   }
 }

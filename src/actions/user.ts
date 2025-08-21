@@ -45,27 +45,27 @@ export const onAuthenticateUser = async () => {
       return { status: 403, message: "Unauthorized: No user found" };
     }
 
+    // Pehle se maujood user ko dhoondhein
     const userExist = await client.user.findUnique({
       where: {
         clerkid: user.id,
       },
       include: {
-        workspace: {
-          where: {
-            User: {
-              clerkid: user.id,
-            },
-          },
-        },
+        workspace: true, // Saath mein workspace bhi get karein
       },
     });
+
+    // Agar user pehle se hai, to seedha return karein
     if (userExist) {
       return {
         status: 200,
         user: userExist,
       };
     }
-    const newUser = await client.user.create({
+
+    // -- YAHAN BADLAV HUA HAI --
+    // Agar user naya hai, to use create karein
+    const newUserCreation = await client.user.create({
       data: {
         clerkid: user.id,
         email: user.emailAddresses[0].emailAddress,
@@ -85,32 +85,40 @@ export const onAuthenticateUser = async () => {
           },
         },
       },
-      include: {
-        workspace: {
-          where: {
-            User: {
-              clerkid: user.id,
+    });
+
+    // Ab, user create hone ke baad, use dobara fetch karein taaki workspace pakka mile
+    if (newUserCreation) {
+      const newlyCreatedUser = await client.user.findUnique({
+        where: {
+          clerkid: user.id,
+        },
+        include: {
+          workspace: true,
+          subscription: {
+            select: {
+              plan: true,
             },
           },
         },
-        subscription: {
-          select: {
-            plan: true,
-          },
-        },
-      },
-    });
-    if (newUser) {
-      return {
-        status: 201,
-        user: newUser,
-      };
+      });
+
+      if (newlyCreatedUser) {
+        return {
+          status: 201,
+          user: newlyCreatedUser,
+        };
+      }
     }
+    
+    // Agar kuch galat ho to fail karein
     return {
       status: 400,
       message: "User creation failed",
     };
+
   } catch (error: any) {
+    console.error("Authentication Error:", error);
     return {
       status: 500,
       message: "Internal server error",

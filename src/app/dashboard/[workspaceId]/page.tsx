@@ -20,7 +20,9 @@ type Props = {
   params: { workspaceId: string }
 }
 
-const Page = async ({ params: { workspaceId } }: Props) => {
+const Page = async ({ params }: { params: { workspaceId: string } }) => {
+  const { workspaceId } = params; 
+  // params ko destructure karein
   const query = new QueryClient()
 
   await query.prefetchQuery({

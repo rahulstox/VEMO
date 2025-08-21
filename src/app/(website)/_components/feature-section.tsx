@@ -5,7 +5,7 @@ import { Timeline } from "@/components/ui/timeline";
 export function FeatureSection() {
   const data = [
     {
-      key: "create-workspaces",
+      key: "Create Workspaces", // ADDED
       title: "Create Workspaces",
       content: (
         <div>
@@ -25,7 +25,7 @@ export function FeatureSection() {
       ),
     },
     {
-      key: "record-upload",
+      key: "Record & Upload Videos", // ADDED
       title: "Record & Upload Videos",
       content: (
         <div>
@@ -45,7 +45,7 @@ export function FeatureSection() {
       ),
     },
     {
-      key: "organize-share",
+      key: "Organize & Share", // ADDED
       title: "Organize & Share",
       content: (
         <div>
@@ -54,7 +54,6 @@ export function FeatureSection() {
           </p>
           <div className="grid grid-cols-2 gap-4">
             <Image
-              key="folder-organise"
               src="/folder-organise.png"
               alt="Opal video organization interface"
               width={600}
@@ -62,7 +61,6 @@ export function FeatureSection() {
               className="rounded-lg object-cover w-full h-auto shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
             />
             <Image
-              key="ai-features"
               src="/ai-features.png"
               alt="Opal video sharing options"
               width={600}
@@ -74,7 +72,7 @@ export function FeatureSection() {
       ),
     },
     {
-      key: "collaborate-feedback",
+      key: "Collaborate & Feedback", // ADDED
       title: "Collaborate & Feedback",
       content: (
         <div>
@@ -94,7 +92,7 @@ export function FeatureSection() {
       ),
     },
     {
-      key: "ai-features",
+      key: "AI-Powered Features", // ADDED
       title: "AI-Powered Features",
       content: (
         <div>

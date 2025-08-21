@@ -1,21 +1,42 @@
+'use client' // Step 1: Isse client component banayein
+
 import { onAuthenticateUser } from '@/actions/user'
-import{ redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation' // Step 2: useRouter ko import karein
+import React, { useEffect } from 'react'
+import { Spinner } from '@/components/global/loader/spinner' // Spinner import karein
 
+const DashboardPage = () => {
+  const router = useRouter()
 
-type Props = {}
+  // Step 3: useEffect ka istemaal karein taaki yeh logic browser mein chale
+  useEffect(() => {
+    const checkUserAndRedirect = async () => {
+      const authResponse = await onAuthenticateUser();
 
+      // Agar user milta hai aur uske paas workspace hai
+      if (authResponse.user && authResponse.user.workspace && authResponse.user.workspace.length > 0) {
+        // Sahi dashboard par redirect karein
+        router.push(`/dashboard/${authResponse.user.workspace[0].id}`);
+      } else if (authResponse.user) {
+        // User hai par workspace abhi tak load nahi hua, 1 second baad dobara try karein
+        console.log("Workspace not found yet, retrying in 1 second...");
+        setTimeout(checkUserAndRedirect, 1000);
+      } else {
+        // Agar user hi nahi mila, to sign-in par bhejein
+        router.push('/auth/sign-in');
+      }
+    };
 
+    checkUserAndRedirect();
+  }, [router]); // dependency array mein router add karein
 
-const Dashboardpage = async () => {
-     //Authentication
-  const auth = await onAuthenticateUser()
-  if (auth.status === 200 || auth.status === 201)
-    return redirect(`/dashboard/${auth.user?.workspace[0].id}`)
-
-  if (auth.status === 400 || auth.status === 500 || auth.status === 404) {
-    return redirect('/auth/sign-in')
-  }
-  return null // This ensures the function does not return anything visible
+  // Step 4: Jab tak redirection ho raha hai, ek loading spinner dikhayein
+  return (
+    <div className="flex h-screen w-full flex-col justify-center items-center text-white">
+        <Spinner />
+        <p className="mt-4">Loading your dashboard...</p>
+    </div>
+  )
 }
 
-export default Dashboardpage
+export default DashboardPage;

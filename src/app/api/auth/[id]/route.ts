@@ -1,3 +1,5 @@
+// src/app/api/auth/[id]/route.ts (Corrected & Secured)
+
 import { client } from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -6,7 +8,21 @@ export async function GET(
   req: NextRequest,
   { params: { id } }: { params: { id: string } }
 ) {
-  console.log("Endpoint hit ✅");
+  // Step 1: Request header se API Key nikalein
+  const authHeader = req.headers.get("Authorization");
+  const apiKey = authHeader?.split(" ")[1]; // Format "Bearer <key>" se key nikalein
+
+  // Step 2: API Key ko server ke secret key se compare karein
+  if (apiKey !== process.env.DESKTOP_APP_API_KEY) {
+    // Agar key match nahi hoti, to access deny karein
+    return NextResponse.json(
+      { status: 401, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  // Agar key sahi hai, tabhi aage ka code chalega
+  console.log("Endpoint hit ✅ - Authorized");
 
   try {
     const userProfile = await client.user.findUnique({
@@ -22,8 +38,11 @@ export async function GET(
         },
       },
     });
-    if (userProfile)
+
+    if (userProfile) {
       return NextResponse.json({ status: 200, user: userProfile });
+    }
+
     const clerkclient = await clerkClient();
     const clerkUserInstance = await clerkclient.users.getUser(id);
     const createUser = await client.user.create({
@@ -32,18 +51,14 @@ export async function GET(
         email: clerkUserInstance.emailAddresses[0].emailAddress,
         firstname: clerkUserInstance.firstName,
         lastname: clerkUserInstance.lastName,
-        studio: {
-          create: {},
-        },
+        studio: { create: {} },
         workspace: {
           create: {
             name: `${clerkUserInstance.firstName}'s Workspace`,
             type: "PERSONAL",
           },
         },
-        subscription: {
-          create: {},
-        },
+        subscription: { create: {} },
       },
       include: {
         subscription: {
@@ -54,10 +69,18 @@ export async function GET(
       },
     });
 
-    if (createUser) return NextResponse.json({ status: 201, user: createUser });
+    if (createUser) {
+      return NextResponse.json({ status: 201, user: createUser });
+    }
 
     return NextResponse.json({ status: 400 });
   } catch (error) {
-    console.log("ERROR", error);
+    console.log("🔴 ERROR", error);
+    return NextResponse.json(
+      { status: 500, message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
+// Note: This code now includes security measures to validate the API key
+// and ensure that only authorized requests can access the user data. 

@@ -3,12 +3,12 @@
 import * as React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useDispatch } from 'react-redux'
+// import { useDispatch } from 'react-redux' // REMOVED
 import { Menu, PlusCircle } from 'lucide-react'
 import { useQueryData } from '@/hooks/useQueryData'
 import { getWorkSpaces } from '@/actions/workspace'
 import { getNotifications } from '@/actions/user'
-import { WORKSPACES } from '@/redux/slices/workspaces'
+// import { WORKSPACES } from '@/redux/slices/workspaces' // REMOVED
 import { MENU_ITEMS } from '@/constants'
 
 import { Button } from '@/components/ui/button'
@@ -41,9 +41,10 @@ type Props = {
 export default function Sidebar({ activeWorkspaceId }: Props) {
   const router = useRouter()
   const pathName = usePathname()
-  const dispatch = useDispatch()
+  
+  // REMOVED: const dispatch = useDispatch()
 
-  const { data: workspaceData, isFetched } = useQueryData(['user-workspaces'], getWorkSpaces)
+  const { data: workspaceData } = useQueryData(['user-workspaces'], getWorkSpaces)
   const { data: notificationsData } = useQueryData(['user-notifications'], getNotifications)
 
   const menuItems = MENU_ITEMS(activeWorkspaceId)
@@ -53,11 +54,12 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
 
   const currentWorkspace = workspace?.workspace.find((s) => s.id === activeWorkspaceId)
 
-  React.useEffect(() => {
-    if (isFetched && workspace) {
-      dispatch(WORKSPACES({ workspaces: workspace.workspace }))
-    }
-  }, [isFetched, workspace, dispatch])
+  // REMOVED: The useEffect that dispatched workspaces to Redux is no longer needed.
+  // React.useEffect(() => {
+  //   if (isFetched && workspace) {
+  //     dispatch(WORKSPACES({ workspaces: workspace.workspace }))
+  //   }
+  // }, [isFetched, workspace, dispatch])
 
   const onChangeActiveWorkspace = (value: string) => {
     router.push(`/dashboard/${value}`)
@@ -121,7 +123,6 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
               icon={item.icon}
               selected={pathName === item.href}
               title={item.title}
-              // notifications={item.title === 'Notifications' ? notificationCount?._count?.notification || 0 : 0}
             />
           ))}
         </nav>
@@ -145,7 +146,6 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
                     href={`/dashboard/${item.id}`}
                     selected={pathName === `/dashboard/${item.id}`}
                     title={item.name}
-                    // notifications={0}
                     icon={<WorkspacePlaceholder>{item.name.charAt(0)}</WorkspacePlaceholder>}
                   />
                 )
@@ -157,7 +157,6 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
                     href={`/dashboard/${item.WorkSpace.id}`}
                     selected={pathName === `/dashboard/${item.WorkSpace.id}`}
                     title={item.WorkSpace.name}
-                    // notifications={0}
                     icon={<WorkspacePlaceholder>{item.WorkSpace.name.charAt(0)}</WorkspacePlaceholder>}
                   />
                 )

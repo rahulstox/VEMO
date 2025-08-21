@@ -5,13 +5,15 @@ import { currentUser } from "@clerk/nextjs/server";
 import { sendEmail } from "./user";
 import axios from "axios";
 
+// src/actions/workspace.ts (Corrected)
+
 export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
     const user = await currentUser();
     if (!user) {
       return {
         status: 403,
-        message: "Unauthorized ! User not found",
+        message: "Unauthorized! User not found",
       };
     }
 
@@ -20,13 +22,16 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
         id: workspaceId,
         OR: [
           {
+            // Condition 1: The user is the direct owner of the workspace
             User: {
               clerkid: user.id,
             },
           },
           {
+            // Condition 2: The user is a member of the workspace
             members: {
-              every: {
+              // BUG FIX: Changed `every` to `some`
+              some: {
                 User: {
                   clerkid: user.id,
                 },
@@ -36,16 +41,20 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
         ],
       },
     });
-    if (isUserInWorkspace)
+
+    if (isUserInWorkspace) {
       return {
         status: 200,
         data: { workspace: isUserInWorkspace },
       };
+    }
+      
     return {
-      status: 403,
+      status: 404, // Use 404 to indicate not found/no access
       data: { workspace: null },
     };
   } catch (error) {
+    console.error("Error verifying workspace access:", error);
     return {
       status: 500,
       data: null,

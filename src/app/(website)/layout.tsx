@@ -1,15 +1,12 @@
-import React from 'react'
+import React from "react";
 
 type Props = {
-    children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-const Layout = ({children}: Props) => {
-  return (
-    <div className="flex flex-col  xl:px-0 container">
-        {children}
-    </div>
-  )
-}
+const Layout = ({ children }: Props) => {
+  // We've removed the container and px-0 classes to allow the content to be full-width.
+  return <div className="flex flex-col w-full">{children}</div>;
+};
 
-export default Layout
+export default Layout;

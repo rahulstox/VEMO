@@ -1,72 +1,77 @@
-import { useAppSelector } from '@/redux/store'
-import { useEffect, useState } from 'react'
-import { useMutationData } from './useMutationData'
-import { getWorkspaceFolders, moveVideoLocation } from '@/actions/workspace'
-import useZodForm from './useZodForm'
-import { moveVideoSchema } from '@/components/forms/change-video-location/schema'
+// src/hooks/useFolders.ts
+
+import { useState, useEffect } from "react";
+import { useMutationData } from "./useMutationData";
+import {
+  getWorkSpaces,
+  getWorkspaceFolders,
+  moveVideoLocation,
+} from "@/actions/workspace";
+import useZodForm from "./useZodForm";
+import { moveVideoSchema } from "@/components/forms/change-video-location/schema";
+import { useQueryData } from "./useQueryData";
+import { WorkspaceProps } from "@/types/index.type"; // Types import karein
 
 export const useMoveVideos = (videoId: string, currentWorkspace: string) => {
-  //get state redux
-  const { folders } = useAppSelector((state) => state.FolderReducer)
-  const { workspaces } = useAppSelector((state) => state.WorkSpaceReducer)
+  // Step 1: Redux hooks ko hata dein.
 
-  // fetching states
-  const [isFetching, setIsFetching] = useState(false)
-  //stat folders
-  const [isFolders, setIsFolders] = useState<
-    | ({
-        _count: {
-          videos: number
-        }
-      } & {
-        id: string
-        name: string
-        createdAt: Date
-        workSpaceId: string | null
-      })[]
-    | undefined
-  >(undefined)
+  // Step 2: React Query se workspaces get karein
+  const { data: workspaceData } = useQueryData(
+    ["user-workspaces"],
+    getWorkSpaces
+  );
+  const { data: workspaceInfo } = workspaceData as WorkspaceProps;
+  const workspaces = workspaceInfo
+    ? [
+        ...workspaceInfo.workspace,
+        ...workspaceInfo.members.map((m) => m.WorkSpace),
+      ]
+    : [];
 
-  //use mutation data optimisc
+  const [isFetching, setIsFetching] = useState(false);
+  const [isFolders, setIsFolders] = useState<any[] | undefined>(undefined);
+
   const { mutate, isPending } = useMutationData(
-    ['change-video-location'],
+    ["change-video-location"],
     (data: { folder_id: string; workspace_id: string }) =>
       moveVideoLocation(videoId, data.workspace_id, data.folder_id)
-  )
-  //usezodform
+  );
+
   const { errors, onFormSubmit, watch, register } = useZodForm(
     moveVideoSchema,
     mutate,
     { folder_id: null, workspace_id: currentWorkspace }
-  )
+  );
 
-  //fetchfolders with a use effeect
   const fetchFolders = async (workspace: string) => {
-    setIsFetching(true)
-    const folders = await getWorkspaceFolders(workspace)
-    setIsFetching(false)
-    setIsFolders(folders.data)
-  }
-  useEffect(() => {
-    fetchFolders(currentWorkspace)
-  }, [])
+    setIsFetching(true);
+    const foldersResponse = await getWorkspaceFolders(workspace);
+    setIsFetching(false);
+    setIsFolders(foldersResponse.data);
+  };
 
   useEffect(() => {
-    const workspace = watch(async (value) => {
-      if (value.workspace_id) fetchFolders(value.workspace_id)
-    })
+    fetchFolders(currentWorkspace);
+  }, []);
 
-    return () => workspace.unsubscribe()
-  }, [watch])
+  useEffect(() => {
+    const subscription = watch(async (value) => {
+      if (value.workspace_id) fetchFolders(value.workspace_id);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   return {
     onFormSubmit,
     errors,
     register,
     isPending,
-    folders,
-    workspaces,
+    folders: isFolders || [], // Yahan "folders" ab local state se aayega
+    workspaces, // Yeh React Query se aa raha hai
     isFetching,
     isFolders,
-  }
-}
+  };
+};
+// Note: Redux hooks ko hata diya gaya hai aur ab React Query ka istemal ho raha hai.
+// "useFolders" hook ab Redux se independent hai aur sirf local state aur React Query ka istemal karta hai.
+// Yeh approach zyada modular aur maintainable hai, kyunki Redux ka dependency nahi hai.
