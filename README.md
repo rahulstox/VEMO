@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vemo: A Screen Recording and Collaborative Platform
 
-## Getting Started
 
-First, run the development server:
+
+https://github.com/user-attachments/assets/0e5959b3-286e-4b15-a752-3fd26e490a1c
+
+
+
+
+
+Vemo is a comprehensive application designed to streamline screen recording and video collaboration workflows. It consists of three integrated components: a Next.js web application, an Electron.js-based desktop application, and an Express.js server for video processing.
+
+Problem Statement for Vemo:
+
+"Traditional text-based communication and follow-ups in business interactions are often inefficient, leading to miscommunication and lost opportunities. Existing video recording and sharing solutions either rely on third-party libraries, lack real-time engagement features, or are too complex for seamless integration into workflows. There is a need for a streamlined, high-quality video messaging platform that enables users to record, share, and manage videos effortlessly. Vemo aims to enhance business communication by providing real-time video recording, AI-powered summaries, collaboration tools, and instant sharing capabilities, improving outreach, engagement, and productivity."
+
+This aligns with Opal’s features and the challenges it solves.
+
+## Features
+
+### Web Application (Next.js)
+- **Workspace Management**:
+  - Create and manage workspaces.
+  - Invite collaborators to workspaces and grow.
+- **Folder Organization**:
+  - Create and organize folders for video projects.
+- **Video Management**:
+  - Preview and share videos seamlessly.
+- **Real-Time Updates**:
+  - Videos recorded on the desktop app are uploaded and updated in real time.
+
+### Desktop Application (Electron.js)
+- **Screen Recording**:
+  - Capture high-quality screen recordings.
+  - Include audio and camera feeds during recording.
+- **Real-Time Uploads**:
+  - Videos are uploaded to the web app while recording.
+
+### Video Processing Server (Express.js)
+- **Video Handling**:
+  - Processes and stores videos from the desktop app.
+  - Updates video details on the Next.js web application.
+
+---
+
+## Project Repositories
+
+### Web Application
+[Vemo-webprodigies](https://github.com/rahulstox/VEMO): Contains the Next.js application for video management, video access and collaboration.
+
+### Desktop Application
+[Vemo-electron-desktop-app](https://github.com/rahulstox/VEMO-WebProdigies-Dekstop): Contains the Electron.js desktop app for screen recording and real-time uploads.
+
+### Video Processing Server
+[Vemo-express](https://github.com/rahulstox/VEMO-WebProdigies-Express): Contains the Express.js server for processing and updating video data.
+
+---
+
+## Usage
+1. **Record a Video**:
+   - Launch the Electron desktop app to record your screen, audio, and camera feed.
+2. **Upload in Real-Time**:
+   - Videos are uploaded to the web app as you record.
+3. **Manage and Collaborate**:
+   - Use the web application to preview, share, and organize videos in workspaces and folders.
+
+---
+
+
+
+## Tech Stack
+
+**Client:** Next, Redux, TailwindCSS
+
+**Server:** Node, Express
+
+
+## Run Locally
+
+Clone the project
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+  git clone https://github.com/rahulstox/VEMO.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Go to the project directory
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+  cd my-project
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Install dependencies
 
-## Learn More
+```bash
+  bun install
+```
 
-To learn more about Next.js, take a look at the following resources:
+Start the server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+  bun run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Add .env file in the root of your folder
+```bash
+DATABASE_URL=
 
-## Deploy on Vercel
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+CLERK_SECRET_KEY=
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NEXT_PUBLIC_STRIPE_PUBLISH_KEY=
+
+NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/auth/callback
+
+NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/auth/callback
+
+OPEN_AI_KEY=
+
+NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL=
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+
+MAILER_PASSWORD=
+
+MAILER_EMAIL=
+
+CLOUD_WAYS_POST=
+
+
+
+
+
+
+
