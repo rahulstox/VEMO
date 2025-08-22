@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import PillRadioNav from "@/components/ui/pill-radio-nav"; // Import the new component
-
+import PillRadioNav from "@/components/ui/pill-radio-nav";
+// Yahan hum 'StarBackground' ko import kar rahe hain, 'ThreeDScene' ko nahi
+import StarBackground from "@/components/global/star-background";
 
 const videos = [
   {
@@ -42,9 +43,11 @@ export default function VideoShowcase() {
   const activeVideo = videos.find((v) => v.id === activeTab) || videos[0];
 
   return (
-    <section className="dark:bg-black py-20" id="video">
-      <div className="container mx-auto px-4">
-        {/* --- NEW PILL-STYLE NAVIGATION --- */}
+    <section className="py-20 relative overflow-hidden" id="video">
+      {/* Yahan hum 'StarBackground' component ka istemaal kar rahe hain */}
+      <StarBackground />
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex justify-center mb-12">
           <PillRadioNav
             items={TABS}
