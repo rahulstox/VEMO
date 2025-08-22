@@ -68,14 +68,23 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
   const SidebarContent = (
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="flex items-center justify-center p-6 border-b border-gray-800">
-        <Image src="/opal-logo.svg" height={40} width={40} alt="logo" className="mr-2" />
+        <Image
+          src="/opal-logo.svg"
+          height={40}
+          width={40}
+          alt="logo"
+          className="mr-2"
+        />
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-          Opal
+          VEMO
         </h1>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4 px-3">
-        <Select defaultValue={activeWorkspaceId} onValueChange={onChangeActiveWorkspace}>
+        <Select
+          defaultValue={activeWorkspaceId}
+          onValueChange={onChangeActiveWorkspace}
+        >
           <SelectTrigger className="w-full mb-4 bg-gray-800 border-gray-700 text-gray-200">
             <SelectValue placeholder="Select a workspace" />
           </SelectTrigger>
@@ -88,34 +97,45 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
                   {ws.name}
                 </SelectItem>
               ))}
-              {workspace?.members.map((member) => 
-                member.WorkSpace && (
-                  <SelectItem key={member.WorkSpace.id} value={member.WorkSpace.id} className="text-gray-200">
-                    {member.WorkSpace.name}
-                  </SelectItem>
-                )
+              {workspace?.members.map(
+                (member) =>
+                  member.WorkSpace && (
+                    <SelectItem
+                      key={member.WorkSpace.id}
+                      value={member.WorkSpace.id}
+                      className="text-gray-200"
+                    >
+                      {member.WorkSpace.name}
+                    </SelectItem>
+                  )
               )}
             </SelectGroup>
           </SelectContent>
         </Select>
 
-        {currentWorkspace?.type === 'PUBLIC' && workspace?.subscription?.plan === 'PRO' && (
-          <Modal
-            trigger={
-              <Button variant="outline" className="w-full mb-4 bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700">
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Invite To Workspace
-              </Button>
-            }
-            title="Invite To Workspace"
-            description="Invite other users to your workspace"
-          >
-            <Search workspaceId={activeWorkspaceId} />
-          </Modal>
-        )}
+        {currentWorkspace?.type === "PUBLIC" &&
+          workspace?.subscription?.plan === "PRO" && (
+            <Modal
+              trigger={
+                <Button
+                  variant="outline"
+                  className="w-full mb-4 bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Invite To Workspace
+                </Button>
+              }
+              title="Invite To Workspace"
+              description="Invite other users to your workspace"
+            >
+              <Search workspaceId={activeWorkspaceId} />
+            </Modal>
+          )}
 
         <nav className="space-y-1 mb-6 list-none">
-          <h2 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Menu</h2>
+          <h2 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Menu
+          </h2>
           {menuItems.map((item) => (
             <SidebarItem
               key={item.title}
@@ -130,43 +150,56 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
         <Separator className="my-4 bg-gray-700" />
 
         <div className="space-y-4">
-          <h2 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Workspaces</h2>
-          {workspace?.workspace.length === 1 && workspace.members.length === 0 ? (
+          <h2 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Workspaces
+          </h2>
+          {workspace?.workspace.length === 1 &&
+          workspace.members.length === 0 ? (
             <p className="text-sm text-gray-500 px-3">
-              {workspace.subscription?.plan === 'FREE'
-                ? 'Upgrade to create workspaces'
-                : 'No Workspaces'}
+              {workspace.subscription?.plan === "FREE"
+                ? "Upgrade to create workspaces"
+                : "No Workspaces"}
             </p>
           ) : (
             <nav className="space-y-1 list-none">
-              {workspace?.workspace.map((item) =>
-                item.type !== 'PERSONAL' && (
-                  <SidebarItem
-                    key={item.id}
-                    href={`/dashboard/${item.id}`}
-                    selected={pathName === `/dashboard/${item.id}`}
-                    title={item.name}
-                    icon={<WorkspacePlaceholder>{item.name.charAt(0)}</WorkspacePlaceholder>}
-                  />
-                )
+              {workspace?.workspace.map(
+                (item) =>
+                  item.type !== "PERSONAL" && (
+                    <SidebarItem
+                      key={item.id}
+                      href={`/dashboard/${item.id}`}
+                      selected={pathName === `/dashboard/${item.id}`}
+                      title={item.name}
+                      icon={
+                        <WorkspacePlaceholder>
+                          {item.name.charAt(0)}
+                        </WorkspacePlaceholder>
+                      }
+                    />
+                  )
               )}
-              {workspace?.members.map((item) =>
-                item.WorkSpace && (
-                  <SidebarItem
-                    key={item.WorkSpace.id}
-                    href={`/dashboard/${item.WorkSpace.id}`}
-                    selected={pathName === `/dashboard/${item.WorkSpace.id}`}
-                    title={item.WorkSpace.name}
-                    icon={<WorkspacePlaceholder>{item.WorkSpace.name.charAt(0)}</WorkspacePlaceholder>}
-                  />
-                )
+              {workspace?.members.map(
+                (item) =>
+                  item.WorkSpace && (
+                    <SidebarItem
+                      key={item.WorkSpace.id}
+                      href={`/dashboard/${item.WorkSpace.id}`}
+                      selected={pathName === `/dashboard/${item.WorkSpace.id}`}
+                      title={item.WorkSpace.name}
+                      icon={
+                        <WorkspacePlaceholder>
+                          {item.WorkSpace.name.charAt(0)}
+                        </WorkspacePlaceholder>
+                      }
+                    />
+                  )
               )}
             </nav>
           )}
         </div>
       </div>
 
-      {workspace?.subscription?.plan === 'FREE' && (
+      {workspace?.subscription?.plan === "FREE" && (
         <div className="p-4 bg-gray-800 rounded-lg mx-3 mb-4">
           <GlobalCard
             title="Upgrade to Pro"
@@ -176,7 +209,7 @@ export default function Sidebar({ activeWorkspaceId }: Props) {
         </div>
       )}
     </div>
-  )
+  );
 
   return (
     <>

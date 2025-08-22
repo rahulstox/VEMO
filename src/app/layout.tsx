@@ -8,7 +8,7 @@ import { ReduxProvider } from "@/redux/provider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Opal",
+  title: "Vemo",
   description: "Share AI powered video with your friends",
 };
 

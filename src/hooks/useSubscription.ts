@@ -1,28 +1,40 @@
-import { useState } from 'react'
-import axios from 'axios'
+import { useState } from "react";
+import axios from "axios";
 
 export const useSubscription = () => {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const onSubscribe = async () => {
-    setIsProcessing(true)
-    try {
-      const response = await axios.get('/api/payment')
-      if (response.data.status === 200) {
-        return (window.location.href = `${response.data.session_url}`)
-      }
-      setIsProcessing(false)
-    } catch (error) {
-      console.log(error, '🔴')
-    }
-  }
-  return { onSubscribe, isProcessing }
-}
+  const [isProcessing, setIsProcessing] = useState(false);
 
-// 🔹 Key Benefits of Axios
-// ✔ Easy to Use – Cleaner syntax than fetch()
-// ✔ Promise-Based – Supports async/await for better readability
-// ✔ Automatic JSON Handling – Parses JSON responses automatically
-// ✔ Request & Response Interceptors – Modify requests or responses globally
-// ✔ Error Handling – Provides better error messages than fetch()
-// ✔ Supports Timeout & Cancellation – Helps manage network requests efficiently
-// ✔ Works in Browser & Node.js – Can be used in frontend & backend
+  // Ab yeh function plan ka naam lega
+  const onSubscribe = async (plan: "monthly" | "annually") => {
+    setIsProcessing(true);
+    try {
+      // GET se POST mein badla gaya
+      const response = await axios.post("/api/payment", { plan });
+
+      if (response.data.status === 200) {
+        // Razorpay checkout ko open karein
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          subscription_id: response.data.subscription_id,
+          name: "VEMO Pro",
+          description: `VEMO Pro ${plan} subscription`,
+          handler: function (res: any) {
+            // Payment success par hum webhook par nirbhar karenge
+            console.log(res);
+            alert("Payment Successful! Your account will be upgraded shortly.");
+          },
+          prefill: {
+            email: response.data.user_email,
+          },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      }
+      setIsProcessing(false);
+    } catch (error) {
+      console.log(error, "🔴");
+      setIsProcessing(false);
+    }
+  };
+  return { onSubscribe, isProcessing };
+};

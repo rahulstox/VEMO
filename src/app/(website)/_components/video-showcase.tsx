@@ -1,43 +1,37 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Cover } from '@/components/ui/cover'
+import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const videos = [
-  { 
-    id: 'workspace',
-    title: 'Quick Workspace Tour',
-    description: 'Learn how to set up and navigate your Opal workspace.',
-    src: './workspace-tour.mp4'
+  {
+    id: "workspace",
+    title: "Quick Workspace Tour",
+    description: "Learn how to set up and navigate your VEMO workspace.",
+    src: "/workspace-tour.mp4",
   },
-  { 
-    id: 'recording',
-    title: 'Recording Your First Video',
-    description: 'Step-by-step guide to record and upload your first video with Opal.',
-    src: '/collaboration.mp4'
+  {
+    id: "recording",
+    title: "Recording Your First Video",
+    description:
+      "Step-by-step guide to record and upload your first video with VEMO.",
+    src: "/collaboration.mp4", // Note: You might want a different video here
   },
-  { 
-    id: 'collaborate',
-    title: 'Collaborating with Team',
-    description: 'Discover how to invite team members and collaborate on projects.',
-    src: '/collaboration.mp4'
+  {
+    id: "collaborate",
+    title: "Collaborating with Team",
+    description:
+      "Discover how to invite team members and collaborate on projects.",
+    src: "/collaboration.mp4", // Note: You might want a different video here
   },
-]
+];
 
 export default function VideoShowcase() {
-  const [playing, setPlaying] = useState(false)
-
   return (
-    <section className=" dark:bg-neutral-950 py-20">
+    <section className="dark:bg-neutral-950 py-20" id="video">
       <div className="container mx-auto px-4">
-        <div className='flex flex-col items-center pb-8'>
-          <Cover>
-          <h2 className="text-3xl font-bold text-center " id='video'>See Opal in Action</h2>
-          </Cover>
-        </div>
-        
+        {/* HEADING SECTION HAS BEEN REMOVED */}
+
         <Tabs defaultValue="workspace" className="w-full max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="workspace">Workspace Tour</TabsTrigger>
@@ -50,12 +44,12 @@ export default function VideoShowcase() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative aspect-video rounded-lg overflow-hidden"
+                className="relative aspect-video rounded-lg overflow-hidden border border-white/10"
               >
                 <video
                   src={video.src}
                   className="w-full h-full object-cover"
-                  controls={true}
+                  controls
                 />
               </motion.div>
               <h3 className="text-xl font-semibold mt-4">{video.title}</h3>
@@ -65,5 +59,5 @@ export default function VideoShowcase() {
         </Tabs>
       </div>
     </section>
-  )
+  );
 }

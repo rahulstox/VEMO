@@ -1,14 +1,13 @@
-import { Spinner } from '@/components/global/loader/spinner'
-import React from 'react'
+import AnimatedLoader from "@/components/global/loader/animated-loader";
+import React from "react";
+import "@/app/(website)/custom-components.css"; // Import CSS
 
-type Props = {}
-
-const AuthLoading = (props: Props) => {
+const Loading = () => {
   return (
-    <div className="flex h-screen w-full justify-center items-center">
-        <Spinner />
+    <div className="h-screen w-full flex justify-center items-center">
+      <AnimatedLoader text="Processing..." />
     </div>
-  )
-}
+  );
+};
 
-export default AuthLoading
+export default Loading;
