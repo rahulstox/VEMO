@@ -105,3 +105,74 @@
       rgba(0, 0, 0, 0),
       rgba(23, 23, 23, 1));
 }
+
+
+/* src/app/(website)/pill-radio-nav.css */
+
+.pill-radio-container {
+  --main-color: #3b82f6;      /* Blue */
+  --secondary-color: #8b5cf6;  /* Purple */
+  --text-color: #a0a0a0;       /* Muted gray for inactive text */
+  --pill-bg: #1a1a1a;
+  --total-options: 3;          /* We have 3 options */
+
+  display: flex;
+  position: relative;
+  background: var(--pill-bg);
+  border-radius: 3rem;
+  padding: 0.5rem;
+  gap: 1rem;
+  box-shadow: 0 0 20px #000 inset;
+  width: fit-content;
+}
+
+.pill-radio-container input {
+  display: none;
+}
+
+.pill-radio-container label {
+  position: relative;
+  padding: 0.6rem 1.5rem;
+  border-radius: 3rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-color);
+  transition: color 0.3s ease-in-out;
+  z-index: 2;
+}
+
+.pill-radio-container input:checked + label {
+  color: #fff; /* White text for the active label */
+}
+
+.pill-radio-container label:hover {
+  color: #fff;
+}
+
+.pill-indicator {
+  position: absolute;
+  bottom: 8px; /* Adjusted position */
+  left: 8px;   /* Adjusted position */
+  height: 4px;
+  /* Calculated width for 3 options */
+  width: calc((100% - 2rem * 2 - 1rem * 2) / var(--total-options));
+  background: linear-gradient(
+    to right,
+    var(--main-color),
+    var(--secondary-color)
+  );
+  border-radius: 2px;
+  transition: transform 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+  z-index: 1;
+}
+
+/* Sliding effect for 3 options */
+#pill-workspace:checked ~ .pill-indicator {
+  transform: translateX(0%);
+}
+#pill-recording:checked ~ .pill-indicator {
+  transform: translateX(calc(100% + 1rem));
+}
+#pill-collaborate:checked ~ .pill-indicator {
+  transform: translateX(calc(200% + 2rem));
+}

@@ -147,3 +147,25 @@
   transform: translateX(7px);
 }
 
+/* --- Video Ambient Mode Effect --- */
+.video-container-ambient {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.75rem; /* 12px */
+}
+
+.video-container-ambient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit; /* Inherits the video source */
+  filter: blur(40px) brightness(1.2); /* Creates the glow effect */
+  transform: scale(1.1); /* Makes the glow extend beyond the video */
+  z-index: -1;
+  border-radius: 0.75rem;
+}
