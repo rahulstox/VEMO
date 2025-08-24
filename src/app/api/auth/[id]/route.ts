@@ -6,8 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: { id: string } } // <-- Sirf 'params' yahan rakhein
 ) {
+  const { id } = await params; // <-- 'await params' ko function ke andar le aayein
+
   // Step 1: Request header se API Key nikalein
   const authHeader = req.headers.get("Authorization");
   const apiKey = authHeader?.split(" ")[1]; // Format "Bearer <key>" se key nikalein
@@ -82,5 +84,3 @@ export async function GET(
     );
   }
 }
-// Note: This code now includes security measures to validate the API key
-// and ensure that only authorized requests can access the user data. 

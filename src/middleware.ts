@@ -1,48 +1,39 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-const corsOptions = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
-const isProtectedRoutes = createRouteMatcher([
-  "/dashboard(.*)",
-  "/payment(.*)",
-  "/api(.*)",
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/auth(.*)",
+  "/invite(.*)",
+  "/preview(.*)",
+  "/api/payment/webhook",
 ]);
 
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/payment(.*)"]);
+
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  // Handle preflight requests
-  if (req.method === "OPTIONS") {
-    return NextResponse.json(
-      {},
-      {
-        headers: corsOptions,
-      }
-    );
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    const apiKey = req.headers.get("Authorization")?.split(" ")[1];
+    if (apiKey === process.env.DESKTOP_APP_API_KEY) {
+      return NextResponse.next();
+    }
   }
 
-  // Handle protected routes
-  if (isProtectedRoutes(req)) {
-    auth.protect();
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
   }
 
-  // Handle simple requests
-  const response = NextResponse.next();
+  const { userId } = await auth();
 
-  Object.entries(corsOptions).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
+  if (!userId && isProtectedRoute(req)) {
+    const signInUrl = new URL("/auth/sign-in", req.url);
+    signInUrl.searchParams.set("redirect_url", req.url);
+    return NextResponse.redirect(signInUrl);
+  }
 
-  return response;
+  return NextResponse.next();
 });
 
 export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

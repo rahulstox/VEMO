@@ -21,19 +21,20 @@ type Props = {
 }
 
 const Page = async ({ params }: { params: { workspaceId: string } }) => {
-  const { workspaceId } = params; 
+  const { workspaceId } = await params;
   // params ko destructure karein
-  const query = new QueryClient()
+  const query = new QueryClient();
 
   await query.prefetchQuery({
-    queryKey: ['workspace-folders'],
+    queryKey: ["workspace-folders"],
     queryFn: () => getWorkspaceFolders(workspaceId),
-  })
+  });
 
+  // Yahan function call ko update karein
   await query.prefetchQuery({
-    queryKey: ['user-videos'],
-    queryFn: () => getAllUserVideos(workspaceId),
-  })
+    queryKey: ["user-videos"],
+    queryFn: () => getAllUserVideos(workspaceId, "workspace"),
+  });
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
@@ -72,7 +73,7 @@ const Page = async ({ params }: { params: { workspaceId: string } }) => {
         <Videos workspaceId={workspaceId} videosKey="user-videos" folderId="" />
       </div>
     </HydrationBoundary>
-  )
+  );
 }
 
 

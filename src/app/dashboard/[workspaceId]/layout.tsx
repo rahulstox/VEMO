@@ -14,7 +14,7 @@ type Props = {
 };
 
 const Layout = async ({ params, children }: { params: { workspaceId: string }, children: React.ReactNode }) => {
-  const { workspaceId } = params; 
+const { workspaceId } = await params;
   // params ko destructure karein
   // Check if the user has access to the requested workspace.
   // The clerkMiddleware already protects this route, so we know a user is logged in.

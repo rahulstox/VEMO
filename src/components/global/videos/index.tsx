@@ -1,25 +1,50 @@
-'use client'
-import { getAllUserVideos } from '@/actions/workspace'
-import VideoRecorderDuotone from '@/components/icons/video-recorder-duotone'
-import { useQueryData } from '@/hooks/useQueryData'
-import { cn } from '@/lib/utils'
-import { VideosProps } from '@/types/index.type'
-import React from 'react'
-import VideoCard from './video-card'
+"use client";
+import { getAllUserVideos } from "@/actions/workspace";
+import VideoRecorderDuotone from "@/components/icons/video-recorder-duotone";
+import { useQueryData } from "@/hooks/useQueryData";
+import { cn } from "@/lib/utils";
+import { VideosProps } from "@/types/index.type";
+import React from "react";
+import VideoCard from "./video-card";
+import { Skeleton } from "@/components/ui/skeleton"; // Step 2: Skeleton import karein
 
 type Props = {
-  folderId: string
-  videosKey: string
-  workspaceId: string
-}
- 
+  folderId: string;
+  videosKey: string;
+  workspaceId: string;
+};
+
 const Videos = ({ folderId, videosKey, workspaceId }: Props) => {
-  // WIP: ADd videos Logics 
-  const { data: videoData } = useQueryData([videosKey], () =>
-    getAllUserVideos(folderId)
-  )
- 
-  const { status: videosStatus, data: videos } = videoData as VideosProps
+  const idToFetch = folderId || workspaceId;
+  const typeToFetch = folderId ? "folder" : "workspace";
+
+  // Step 1: `isPending` state ko get karein
+  const { data: videoData, isPending } = useQueryData(
+    [videosKey, idToFetch],
+    () => getAllUserVideos(idToFetch, typeToFetch)
+  );
+
+  // Step 2: Loading state ko handle karein
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-4 mt-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <VideoRecorderDuotone />
+            <h2 className="text-[#BdBdBd] text-xl">Videos</h2>
+          </div>
+        </div>
+        <section className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          {/* Loading Skeletons */}
+          <Skeleton className="w-full h-[250px] rounded-xl" />
+          <Skeleton className="w-full h-[250px] rounded-xl" />
+          <Skeleton className="w-full h-[250px] rounded-xl" />
+        </section>
+      </div>
+    );
+  }
+
+  const { status: videosStatus, data: videos } = videoData as VideosProps;
 
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -31,25 +56,21 @@ const Videos = ({ folderId, videosKey, workspaceId }: Props) => {
       </div>
       <section
         className={cn(
-          videosStatus !== 200
-            ? 'p-5'
-            : 'grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
+          videosStatus !== 200 || videos.length === 0
+            ? "p-5"
+            : "grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         )}
       >
-        {videosStatus === 200 ? (
+        {videosStatus === 200 && videos.length > 0 ? (
           videos.map((video) => (
-            <VideoCard
-              key={video.id}
-              workspaceId={workspaceId}
-              {...video}
-            />
+            <VideoCard key={video.id} workspaceId={workspaceId} {...video} />
           ))
         ) : (
           <p className="text-[#BDBDBD]"> No videos in workspace</p>
         )}
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default Videos
+export default Videos;

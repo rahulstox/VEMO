@@ -163,64 +163,46 @@ export const getWorkspaceFolders = async (workspaceId: string) => {
   }
 };
 
-export const getAllUserVideos = async (workspaceId: string) => {
+// src/actions/workspace.ts
+
+// PURANE getAllUserVideos FUNCTION KO ISSE REPLACE KAREIN
+// src/actions/workspace.ts (Final version of this function)
+
+export const getAllUserVideos = async (id: string, type: 'workspace' | 'folder') => {
   try {
     const user = await currentUser();
     if (!user) {
-      return {
-        status: 403,
-        message: "Unauthorized !, user not found",
-      };
+      return { status: 403, message: "Unauthorized !, user not found" };
     }
 
-    const vidoes = await client.video.findMany({
-      where: {
-        OR: [{ workSpaceId: workspaceId }, { folderId: workspaceId }],
-      },
+    const whereClause = 
+      type === 'folder' 
+        ? { folderId: id } 
+        : { workSpaceId: id, folderId: null };
+
+    const videos = await client.video.findMany({
+      where: whereClause,
       select: {
         id: true,
         title: true,
         createdAt: true,
         source: true,
         processing: true,
-        Folder: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        User: {
-          select: {
-            firstname: true,
-            lastname: true,
-            image: true,
-          },
-        },
+        Folder: { select: { id: true, name: true } },
+        User: { select: { firstname: true, lastname: true, image: true } },
       },
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: { createdAt: "asc" },
     });
 
-    if (vidoes && vidoes.length) {
-      return {
-        status: 200,
-        data: vidoes,
-      };
+    if (videos && videos.length > 0) {
+      return { status: 200, data: videos };
     }
-    return {
-      status: 404,
-      data: [],
-    };
+    return { status: 404, data: [] };
   } catch (error) {
-    return {
-      status: 400,
-      data: [],
-      error,
-    };
+    console.error("Error in getAllUserVideos:", error);
+    return { status: 500, data: [], error };
   }
 };
-
 export const CreateWorkspace = async (name: string) => {
   try {
     const user = await currentUser();
