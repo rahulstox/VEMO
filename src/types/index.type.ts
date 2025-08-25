@@ -66,6 +66,7 @@ export type VideoProps = {
       image: string | null;
       clerkId: string;
       trial: boolean;
+      aiCredits: number;
       subscription: {
         plan: "PRO" | "FREE";
       } | null;
@@ -98,6 +99,7 @@ export type CommentRepliesProps = {
     image: string | null;
     trial: boolean;
     firstView: boolean;
+    aiCredits: number;
   } | null;
 };
 
@@ -113,6 +115,7 @@ export type VideoCommentProps = {
       image: string | null;
       trial: boolean;
       firstView: boolean;
+      aiCredits: number;
     } | null;
     reply: CommentRepliesProps[];
     id: string;

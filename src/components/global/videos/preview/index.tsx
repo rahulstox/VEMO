@@ -1,54 +1,77 @@
-'use client'
-import { getPreviewVideo, sendemailForFirstView } from '@/actions/workspace'
-import { useQueryData } from '@/hooks/useQueryData'
-import { VideoProps } from '@/types/index.type'
-import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
-import CopyLink from '../copy-link'
-import RichLink from '../rich-link'
-import { truncateString } from '@/lib/utils'
-import { Download } from 'lucide-react'
-import TabMenu from '../../tabs'
-import AiTools from '../../ai-tools'
-import VideoTranscript from '../../video-transcript'
-import Activities from '../../activities'
-import EditVideo from '../edit'
+"use client";
+
+import { getPreviewVideo, sendemailForFirstView } from "@/actions/workspace";
+import { useQueryData } from "@/hooks/useQueryData";
+import { VideoProps } from "@/types/index.type";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react"; // Make sure useEffect is imported
+import CopyLink from "../copy-link";
+import RichLink from "../rich-link";
+import { truncateString } from "@/lib/utils";
+import { Download } from "lucide-react";
+import TabMenu from "../../tabs";
+import AiTools from "../../ai-tools";
+import VideoTranscript from "../../video-transcript";
+import Activities from "../../activities";
+import EditVideo from "../edit";
+import { Spinner } from "@/components/global/loader/spinner"; // Import the Spinner
 
 type Props = {
-  videoId: string
-}
+  videoId: string;
+};
 
 const VideoPreview = ({ videoId }: Props) => {
-  const router = useRouter()
+  const router = useRouter();
 
-  const { data } = useQueryData(['preview-video'], () =>
+  // --- FIX #1: Add isPending to handle the loading state ---
+  const { data, isPending } = useQueryData(["preview-video"], () =>
     getPreviewVideo(videoId)
-  )
+  );
 
-  const notifyFirstView = async () => await sendemailForFirstView(videoId)
-
-  const { data: video, status, author } = data as VideoProps
-  if (status !== 200) router.push('/')
-
-  const daysAgo = Math.floor(
-    (new Date().getTime() - video.createdAt.getTime()) / (24 * 60 * 60 * 1000)
-  )
-
+  // --- FIX #2: Move the redirect logic into a useEffect ---
   useEffect(() => {
-    if (video.views === 0) {
-      notifyFirstView()
+    // This code will run AFTER the component renders
+    if (!isPending && data) {
+      const { status, data: video } = data as VideoProps;
+
+      // If the video is not found, redirect safely
+      if (status !== 200) {
+        router.push("/");
+        return;
+      }
+
+      // Also, handle the first view notification here
+      if (video && video.views === 0) {
+        sendemailForFirstView(videoId);
+      }
     }
-    return () => {
-      notifyFirstView()
-    }
-  }, [])
+  }, [data, isPending, router, videoId]); // Dependencies for the effect
+
+  // Show a loading spinner while data is being fetched
+  if (isPending || !data) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  const { data: video, author } = data as VideoProps;
+
+  // We can safely calculate this now because we know `video` exists
+  const daysAgo = Math.floor(
+    (new Date().getTime() - new Date(video.createdAt).getTime()) /
+      (24 * 60 * 60 * 1000)
+  );
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 lg:py-10 py-5 overflow-y-auto gap-5 px-4 lg:px-0">
       <div className="flex flex-col lg:col-span-2 gap-y-6 lg:gap-y-10">
         <div>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-x-5 items-start justify-between">
-            <h2 className="text-white text-2xl sm:text-4xl font-bold">{video.title}</h2>
+            <h2 className="text-white text-2xl sm:text-4xl font-bold">
+              {video.title}
+            </h2>
             {author ? (
               <EditVideo
                 videoId={videoId}
@@ -62,17 +85,21 @@ const VideoPreview = ({ videoId }: Props) => {
               {video.User?.firstname} {video.User?.lastname}
             </p>
             <p className="text-[#707070]">
-              {daysAgo === 0 ? 'Today' : `${daysAgo}d ago`}
+              {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
             </p>
           </span>
         </div>
         <video
           preload="metadata"
-          className="w-full aspect-video opacity-50 rounded-xl"
+          className="w-full aspect-video rounded-xl"
           controls
+          // Add autoPlay and muted for a better user experience
+          autoPlay
+          muted
+          loop
         >
           <source
-            src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/opal/${video.source}.webm`}
+            src={`${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${video.source}.mp4`}
           />
         </video>
         <div className="flex flex-col text-xl sm:text-2xl gap-y-4">
@@ -109,14 +136,10 @@ const VideoPreview = ({ videoId }: Props) => {
         <div>
           <TabMenu
             defaultValue="Ai tools"
-            triggers={['Ai tools', 'Transcript', 'Activity']}
+            triggers={["Ai tools", "Transcript", "Activity"]}
             className="w-full"
           >
-            <AiTools
-              videoId={videoId}
-              trial={video.User?.trial!}
-              plan={video.User?.subscription?.plan!}
-            />
+            <AiTools videoId={videoId} />
             <VideoTranscript transcript={video.summery!} />
             <Activities
               author={video.User?.firstname as string}
@@ -126,7 +149,7 @@ const VideoPreview = ({ videoId }: Props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default VideoPreview
+export default VideoPreview;

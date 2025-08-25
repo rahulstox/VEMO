@@ -89,11 +89,6 @@ const Folders = ({ workspaceId }: Props) => {
           </>
         )}
       </div>
-      <Videos
-        workspaceId={workspaceId}
-        folderId={workspaceId}
-        videosKey="user-videos"
-      />
     </div>
   )
 }

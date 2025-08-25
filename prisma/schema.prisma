@@ -32,6 +32,7 @@ model User {
   trial        Boolean        @default(false)
   firstView    Boolean        @default(false)
   comment      Comment[]
+  aiCredits    Int            @default(3) 
 }
 
 model Comment {

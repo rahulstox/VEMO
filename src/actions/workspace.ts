@@ -400,6 +400,7 @@ export const getPreviewVideo = async (videoId: string) => {
             image: true,
             clerkid: true,
             trial: true,
+            aiCredits: true,
             subscription: {
               select: {
                 plan: true,

@@ -59,7 +59,7 @@ const VideoCard = (props: Props) => {
             className="w-full aspect-video opacity-50 z-20"
           >
             <source
-              src={`${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${props.source}#t=1`}
+              src={`${process.env.NEXT_PUBLIC_CLOUD_FRONT_STREAM_URL}/${props.source}.mp4`}
             />
           </video>
           <div className="px-5 py-3 flex flex-col gap-7-2 z-20">
@@ -78,17 +78,13 @@ const VideoCard = (props: Props) => {
                   {props.User?.firstname} {props.User?.lastname}
                 </p>
                 <p className="text-[#6d6b6b]  text-xs flex items-center ">
-                  <Dot /> {daysAgo === 0 ? 'Today' : `${daysAgo}d ago`}
+                  <Dot /> {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
                 </p>
               </div>
             </div>
             <div className="mt-4">
               <span className="flex gap-x-1 items-center">
-                <Share2
-                  fill="#9D9D9D"
-                  className="text-[#9D9D9D]"
-                  size={12}
-                />
+                <Share2 fill="#9D9D9D" className="text-[#9D9D9D]" size={12} />
                 <p className="text-xs text-[#9D9D9D] capitalize">
                   {props.User?.firstname}&#39;s Workspace
                 </p>
@@ -98,7 +94,7 @@ const VideoCard = (props: Props) => {
         </Link>
       </div>
     </Loader>
-  )
+  );
 }
 
 export default VideoCard
