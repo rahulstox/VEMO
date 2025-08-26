@@ -3,18 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SubSelectToggle, { MenuItem } from "@/components/ui/sub-select-toggle";
 import { useSubscription } from "@/hooks/useSubscription";
 import Loader from "@/components/global/loader";
 import Squishy3DButton from "@/components/ui/squishy-3d-button";
-const TABS: [MenuItem, MenuItem] = [
-  { label: "Free", value: "free" },
-  { label: "Premium", value: "premium" },
-];
+import BillingToggle, { ToggleTab } from "@/components/ui/billing-toggle";
 
-const SUB_TABS: [MenuItem, MenuItem] = [
+const TABS: [ToggleTab, ToggleTab] = [
   { label: "Monthly", value: "monthly" },
   { label: "Annually", value: "annually" },
 ];
@@ -24,33 +19,32 @@ const features = {
     { name: "Single workspace", included: true },
     { name: "5-minute video recording limit", included: true },
     { name: "720p video quality", included: true },
+    { name: "3 AI Tool Credits", included: true },
     { name: "AI-powered transcripts", included: false },
-    { name: "Invite user in workspace", included: false },
+    { name: "Invite users to workspace", included: false },
   ],
   premium: [
     { name: "Unlimited workspaces", included: true },
     { name: "Unlimited recording length", included: true },
-    { name: "1080p video quality", included: true },
+    { name: "4K video quality", included: true },
+    { name: "Unlimited AI Tool Credits", included: true },
     { name: "AI-powered transcripts", included: true },
-    { name: "Invite user in workspace", included: true },
+    { name: "Invite users to workspace", included: true },
   ],
 };
 
 const prices = {
   monthly: 15,
-  annually: 100,
+  annually: 120, // Corrected annual price for example
 };
 
 export default function PricingSection() {
-  const [activeTab, setActiveTab] = useState<MenuItem>(TABS[0]);
-  const [subTab, setSubTab] = useState<MenuItem>(SUB_TABS[0]);
+  const [activeTab, setActiveTab] = useState(TABS[0].value);
   const { onSubscribe, isProcessing } = useSubscription();
 
-  const isPremium = activeTab.value === "premium";
-  const currentPrice = isPremium
-    ? prices[subTab.value as "monthly" | "annually"]
-    : 0;
-  const featureList = isPremium ? features.premium : features.free;
+  const isMonthly = activeTab === "monthly";
+  const currentPrice = isMonthly ? prices.monthly : prices.annually;
+  const billingCycle = isMonthly ? "month" : "year";
 
   return (
     <section className="py-20 dark:bg-black" id="pricing">
@@ -63,46 +57,26 @@ export default function PricingSection() {
         </p>
 
         <div className="flex justify-center mb-12">
-          <SubSelectToggle
-            tabs={TABS}
-            subTabs={SUB_TABS}
-            tab={activeTab}
-            setTab={setActiveTab}
-            subTab={subTab}
-            setSubTab={setSubTab}
-          />
+          <BillingToggle tabs={TABS} tab={activeTab} setTab={setActiveTab} />
         </div>
 
-        <div className="max-w-md mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Free Plan Card */}
           <motion.div
-            key={activeTab.value + subTab.value} // Key changes on any selection to re-trigger animation
             className="bg-neutral-900/50 rounded-lg p-8 shadow-lg border border-white/10 relative overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <h3 className="text-2xl font-semibold mb-4 text-white capitalize">
-              {activeTab.value}
+              Free
             </h3>
             <div className="mb-6">
-              <span className="text-5xl font-bold text-white">
-                ${currentPrice}
-              </span>
-              <span className="text-gray-400 ml-2">
-                {isPremium
-                  ? `/${subTab.value === "monthly" ? "month" : "year"}`
-                  : ""}
-              </span>
+              <span className="text-5xl font-bold text-white">$0</span>
             </div>
             <ul className="space-y-3 mb-8">
-              {featureList.map((feature, featureIndex) => (
-                <motion.li
-                  key={featureIndex}
-                  className="flex items-center"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: featureIndex * 0.05 }}
-                >
+              {features.free.map((feature, index) => (
+                <li key={index} className="flex items-center">
                   {feature.included ? (
                     <Check className="text-green-500 mr-2 flex-shrink-0" />
                   ) : (
@@ -115,25 +89,49 @@ export default function PricingSection() {
                   >
                     {feature.name}
                   </span>
-                </motion.li>
+                </li>
               ))}
             </ul>
-            {isPremium ? (
-              <Squishy3DButton
-                className="w-full bg-white text-black font-bold"
-                onClick={() =>
-                  onSubscribe(subTab.value as "monthly" | "annually")
-                }
-              >
-                <Loader state={isProcessing}>Upgrade to Pro</Loader>
+            <Link href="/auth/sign-up" passHref>
+              <Squishy3DButton className="w-full border border-white/20">
+                Get Started
               </Squishy3DButton>
-            ) : (
-              <Link href="/auth/sign-up" passHref>
-                <Squishy3DButton className="w-full border border-white/20">
-                  Get Started
-                </Squishy3DButton>
-              </Link>
-            )}
+            </Link>
+          </motion.div>
+
+          {/* Premium Plan Card */}
+          <motion.div
+            className="bg-neutral-900/50 rounded-lg p-8 shadow-lg border-2 border-purple-500 relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <div className="absolute top-0 right-0 m-4 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              BEST VALUE
+            </div>
+            <h3 className="text-2xl font-semibold mb-4 text-white capitalize">
+              Premium
+            </h3>
+            <div className="mb-6">
+              <span className="text-5xl font-bold text-white">
+                ${isMonthly ? prices.monthly : prices.annually / 12}
+              </span>
+              <span className="text-gray-400 ml-2">/ {billingCycle}</span>
+            </div>
+            <ul className="space-y-3 mb-8">
+              {features.premium.map((feature, index) => (
+                <li key={index} className="flex items-center">
+                  <Check className="text-green-500 mr-2 flex-shrink-0" />
+                  <span className="text-gray-200">{feature.name}</span>
+                </li>
+              ))}
+            </ul>
+            <Squishy3DButton
+              className="w-full bg-white text-black font-bold"
+              onClick={() => onSubscribe(activeTab as "monthly" | "annually")}
+            >
+              <Loader state={isProcessing}>Upgrade to Pro</Loader>
+            </Squishy3DButton>
           </motion.div>
         </div>
       </div>

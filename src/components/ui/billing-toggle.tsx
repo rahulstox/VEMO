@@ -2,6 +2,7 @@
 
 import { motion, MotionConfig, Transition } from "framer-motion";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface ToggleTab {
   label: string;
@@ -27,9 +28,16 @@ const BillingToggle = ({
         <div className="flex items-center h-12 rounded-full bg-white/10 p-1 text-sm shadow-lg backdrop-blur-md">
           {tabs.map((t) => (
             <motion.button
+              type="button" // This prevents accidental form submissions
               onClick={() => setTab(t.value)}
               key={t.value}
-              className="relative px-4 sm:px-6 py-2 cursor-pointer font-bold text-sm text-white/70"
+              className={cn(
+                "relative px-4 sm:px-6 py-2 cursor-pointer font-bold text-sm",
+                tab === t.value ? "text-black" : "text-white/70"
+              )}
+              whileHover={{
+                color: tab === t.value ? "#000000" : "#FFFFFF",
+              }}
             >
               <span className="relative z-10">{t.label}</span>
               {t.value === tab && (
@@ -38,15 +46,6 @@ const BillingToggle = ({
                   className="absolute inset-0 rounded-full bg-white"
                 />
               )}
-              {/* This span ensures the text color changes correctly on the active pill */}
-              <span className="absolute inset-0 z-20 flex items-center justify-center text-sm font-bold text-black pointer-events-none">
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: t.value === tab ? 1 : 0 }}
-                >
-                  {t.label}
-                </motion.span>
-              </span>
             </motion.button>
           ))}
         </div>

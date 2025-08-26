@@ -1,38 +1,58 @@
+"use client";
+
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "sonner";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export const useSubscription = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Ab yeh function plan ka naam lega
   const onSubscribe = async (plan: "monthly" | "annually") => {
     setIsProcessing(true);
     try {
-      // GET se POST mein badla gaya
-      const response = await axios.post("/api/payment", { plan });
+      // The API call is correct
+      const response = await axios.post("/api/billing", { plan });
 
-      if (response.data.status === 200) {
-        // Razorpay checkout ko open karein
+      // **THE FIX IS HERE:** We now check the response and use the data
+      if (response.data && response.data.subscriptionId) {
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-          subscription_id: response.data.subscription_id,
-          name: "VEMO Pro",
+          key: response.data.razorpayKey,
+          subscription_id: response.data.subscriptionId,
+          name: "VEMO Pro Plan",
           description: `VEMO Pro ${plan} subscription`,
           handler: function (res: any) {
-            // Payment success par hum webhook par nirbhar karenge
-            console.log(res);
-            alert("Payment Successful! Your account will be upgraded shortly.");
+            toast.success("Payment Successful!", {
+              description:
+                "Your account will be upgraded shortly. Please refresh.",
+            });
+            setTimeout(() => {
+              window.location.href = "/dashboard";
+            }, 2000);
           },
           prefill: {
-            email: response.data.user_email,
+            email: response.data.userEmail,
           },
         };
-        const rzp = new (window as any).Razorpay(options);
+        const rzp = new window.Razorpay(options);
         rzp.open();
+      } else {
+        // Show an error if the API call failed
+        toast.error("Failed to create subscription.", {
+          description: response.data.message || "Please try again later.",
+        });
       }
-      setIsProcessing(false);
     } catch (error) {
-      console.log(error, "🔴");
+      console.error("Subscription Error:", error);
+      toast.error("An error occurred.", {
+        description: "Could not process your subscription. Please try again.",
+      });
+    } finally {
       setIsProcessing(false);
     }
   };

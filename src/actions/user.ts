@@ -45,77 +45,67 @@ export const onAuthenticateUser = async () => {
       return { status: 403, message: "Unauthorized: No user found" };
     }
 
-    // Pehle se maujood user ko dhoondhein
     const userExist = await client.user.findUnique({
-      where: {
-        clerkid: user.id,
-      },
-      include: {
-        workspace: true, // Saath mein workspace bhi get karein
-      },
+      where: { clerkid: user.id },
+      include: { subscription: true, workspace: true },
     });
 
-    // Agar user pehle se hai, to seedha return karein
     if (userExist) {
-      return {
-        status: 200,
-        user: userExist,
-      };
+      return { status: 200, user: userExist };
     }
 
-    // -- YAHAN BADLAV HUA HAI --
-    // Agar user naya hai, to use create karein
-    const newUserCreation = await client.user.create({
+    // --- THE FIX STARTS HERE ---
+    // Create the user first, without relations
+    const newUser = await client.user.create({
       data: {
         clerkid: user.id,
         email: user.emailAddresses[0].emailAddress,
         firstname: user.firstName,
         lastname: user.lastName,
         image: user.imageUrl,
-        studio: {
-          create: {},
-        },
-        subscription: {
-          create: {},
-        },
-        workspace: {
-          create: {
-            name: `${user.firstName}'s Workspace`,
-            type: "PERSONAL",
-          },
-        },
       },
     });
 
-    // Ab, user create hone ke baad, use dobara fetch karein taaki workspace pakka mile
-    if (newUserCreation) {
-      const newlyCreatedUser = await client.user.findUnique({
-        where: {
-          clerkid: user.id,
-        },
-        include: {
-          workspace: true,
-          subscription: {
-            select: {
-              plan: true,
-            },
-          },
+    // Now, create the related records and connect them to the new user
+    if (newUser) {
+      // Create the default workspace
+      await client.workSpace.create({
+        data: {
+          name: `${newUser.firstname}'s Workspace`,
+          type: "PERSONAL",
+          userId: newUser.id, // Explicitly link to the new user
         },
       });
 
-      if (newlyCreatedUser) {
-        return {
-          status: 201,
-          user: newlyCreatedUser,
-        };
-      }
+      // Create the default subscription record
+      await client.subscription.create({
+        data: {
+          userId: newUser.id, // Explicitly link to the new user
+        },
+      });
+      
+      // Create the default studio settings
+       await client.media.create({
+        data: {
+          userId: newUser.id, // Explicitly link to the new user
+        },
+      });
     }
-    
-    // Agar kuch galat ho to fail karein
+
+    // Fetch the complete user record with all relations
+    const newlyCreatedUserWithRelations = await client.user.findUnique({
+      where: { id: newUser.id },
+      include: {
+        workspace: true,
+        subscription: true,
+      },
+    });
+
     return {
-      status: 400,
-      message: "User creation failed",
+      status: 201,
+      user: newlyCreatedUserWithRelations,
     };
+    // --- THE FIX ENDS HERE ---
 
   } catch (error: any) {
     console.error("Authentication Error:", error);
