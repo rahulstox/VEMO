@@ -50,7 +50,7 @@
     "@tsparticles/slim": "^3.8.1",
     "@wix/data": "^1.0.246",
     "@wix/sdk": "^1.15.23",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "cloudinary": "^2.7.0",

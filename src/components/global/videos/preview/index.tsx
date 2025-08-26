@@ -140,7 +140,7 @@ const VideoPreview = ({ videoId }: Props) => {
             className="w-full"
           >
             <AiTools videoId={videoId} />
-            <VideoTranscript transcript={video.summery!} />
+            <VideoTranscript transcript={video.summery!} videoId={videoId} />
             <Activities
               author={video.User?.firstname as string}
               videoId={videoId}

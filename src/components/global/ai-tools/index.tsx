@@ -6,7 +6,8 @@ import { Bot, FileTextIcon, Pencil, StarsIcon } from "lucide-react";
 import React, { useState } from "react";
 import Loader from "../loader";
 import { useMutationData } from "@/hooks/useMutationData";
-import { runAiTool } from "@/actions/ai";
+// Import both AI actions
+import { runAiTool, transcribeVideo } from "@/actions/ai";
 import { VideoProps } from "@/types/index.type";
 import { useQueryData } from "@/hooks/useQueryData";
 import { getPreviewVideo } from "@/actions/workspace";
@@ -18,6 +19,9 @@ type Props = {
   videoId: string;
 };
 
+// Define the types for our AI tasks
+type AiTask = "summarize" | "transcribe";
+
 const AiTools = ({ videoId }: Props) => {
   const pathname = usePathname();
   const { data } = useQueryData(["preview-video"], () =>
@@ -25,16 +29,22 @@ const AiTools = ({ videoId }: Props) => {
   );
   const { data: videoData } = (data as VideoProps) || {};
 
-  const [currentTask, setCurrentTask] = useState<string | null>(null);
+  const [currentTask, setCurrentTask] = useState<AiTask | null>(null);
 
+  // A single mutation hook to handle both AI tasks
   const { mutate, isPending } = useMutationData(
     ["run-ai-tool"],
-    (data: { task: "summarize" }) => runAiTool(videoId, data.task),
-    "preview-video",
+    (data: { task: AiTask }) => {
+      if (data.task === "transcribe") {
+        return transcribeVideo(videoId);
+      }
+      return runAiTool(videoId, data.task);
+    },
+    "preview-video", // Refetch video data on success for both tasks
     () => setCurrentTask(null)
   );
 
-  const onRunTool = (task: "summarize") => {
+  const onRunTool = (task: AiTask) => {
     setCurrentTask(task);
     mutate({ task });
   };
@@ -43,6 +53,9 @@ const AiTools = ({ videoId }: Props) => {
   const plan = videoData?.User?.subscription?.plan ?? "FREE";
   const hasCredits = credits > 0;
   const workspaceId = pathname.split("/")[2];
+
+  // Check if the video already has a transcript
+  const hasTranscript = !!videoData?.summery;
 
   return (
     <TabsContent value="Ai tools">
@@ -77,6 +90,34 @@ const AiTools = ({ videoId }: Props) => {
             <StarsIcon color="#a22fe0" fill="#a22fe0" />
           </div>
 
+          {/* AI Transcript Tool */}
+          <div className="flex gap-2 items-center">
+            <div className="p-1.5 sm:p-2 rounded-full border-[#2d2d2d] border-[2px] bg-[#2b2b2b]">
+              <FileTextIcon color="#a22fe0" size={16} />
+            </div>
+            <div className="flex flex-col flex-1">
+              <h3 className="text-sm sm:text-base font-medium">Transcript</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Generate a full transcript for your video.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              // The only disabling conditions are credits and processing status
+              disabled={(plan === "FREE" && !hasCredits) || isPending}
+              onClick={() => onRunTool("transcribe")}
+            >
+              <Loader
+                state={isPending && currentTask === "transcribe"}
+                color="#000"
+              >
+                {/* The text is now smarter */}
+                {hasTranscript ? "Re-transcribe" : "Try now"}
+              </Loader>
+            </Button>
+          </div>
+
+          {/* AI Summary Tool */}
           <div className="flex gap-2 items-center">
             <div className="p-1.5 sm:p-2 rounded-full border-[#2d2d2d] border-[2px] bg-[#2b2b2b]">
               <Pencil color="#a22fe0" size={16} />
@@ -96,23 +137,8 @@ const AiTools = ({ videoId }: Props) => {
                 state={isPending && currentTask === "summarize"}
                 color="#000"
               >
-                Try now
+                {hasTranscript ? "Try now" : "Transcribe First"}
               </Loader>
-            </Button>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <div className="p-1.5 sm:p-2 rounded-full border-[#2d2d2d] border-[2px] bg-[#2b2b2b]">
-              <FileTextIcon color="#a22fe0" size={16} />
-            </div>
-            <div className="flex flex-col flex-1">
-              <h3 className="text-sm sm:text-base font-medium">Transcript</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                (Coming Soon) Generate a full transcript for your video.
-              </p>
-            </div>
-            <Button size="sm" disabled>
-              Coming Soon
             </Button>
           </div>
         </div>

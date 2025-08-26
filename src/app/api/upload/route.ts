@@ -1,13 +1,16 @@
+// src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
 import { client } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
+import axios from "axios";
 
-// Configure Cloudinary with your credentials
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY, // Make sure you have this in your .env
-  api_secret: process.env.CLOUDINARY_API_SECRET, // and this one too
+// We only need the AssemblyAI client here now
+const assemblyai = axios.create({
+  baseURL: "https://api.assemblyai.com/v2",
+  headers: {
+    authorization: process.env.ASSEMBLYAI_API_KEY,
+    "content-type": "application/json",
+  },
 });
 
 export async function POST(req: NextRequest) {
@@ -17,31 +20,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get("video") as File;
-    const workspaceId = formData.get("workspaceId") as string;
+    // The frontend will now send JSON data instead of a file
+    const body = await req.json();
+    const { public_id, version, format, original_filename, workspaceId } = body;
 
-    if (!file || !workspaceId) {
-      return NextResponse.json(
-        { message: "Video file and workspaceId are required" },
-        { status: 400 }
-      );
-    }
-
-    // Convert file to buffer to upload
-    const fileBuffer = await file.arrayBuffer();
-    const mime = file.type;
-    const encoding = "base64";
-    const base64Data = Buffer.from(fileBuffer).toString("base64");
-    const fileUri = "data:" + mime + ";" + encoding + "," + base64Data;
-
-    // Upload to Cloudinary
-    const uploadResponse = await cloudinary.uploader.upload(fileUri, {
-      resource_type: "video",
-      folder: "opal", // Optional: saves videos in a specific folder in Cloudinary
-    });
-
-    // Create a record in your database
+    // Find the user in our database
     const dbUser = await client.user.findUnique({
       where: { clerkid: user.id },
       select: { id: true },
@@ -54,25 +37,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Save the video details to our database
     const newVideo = await client.video.create({
       data: {
-        title: file.name, // Default title to the filename
-        description: "No description provided.",
-        source: uploadResponse.public_id, // This is the unique ID from Cloudinary
+        title: original_filename,
+        source: public_id, // The public_id from Cloudinary is our source
         userId: dbUser.id,
         workSpaceId: workspaceId,
-        processing: true, // Set to true initially
+        processing: true,
       },
     });
 
-    console.log("New video created in DB:", newVideo);
+    // Construct the final, public video URL to send to AssemblyAI
+    const videoUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/v${version}/${public_id}.${format}`;
+
+    // Start the transcription process by calling the webhook
+    await assemblyai.post("/transcript", {
+      audio_url: videoUrl,
+      webhook_url: `${process.env.HOST_URL}/api/transcript/webhook?videoId=${newVideo.id}&userId=${dbUser.id}`,
+      webhook_auth_header_name: "x-webhook-secret",
+      webhook_auth_header_value: process.env.ASSEMBLYAI_WEBHOOK_SECRET!,
+      language_detection: true,
+    });
+
+    console.log(
+      `✅ Direct upload successful. Transcription started for video: ${newVideo.id}`
+    );
 
     return NextResponse.json(
-      { message: "Upload successful", video: newVideo },
+      {
+        message: "Upload successful, processing has started.",
+        video: newVideo,
+      },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Upload API error:", error);
+  } catch (error: any) {
+    console.error(
+      "🔴 Save Upload API error:",
+      error.response?.data || error.message
+    );
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

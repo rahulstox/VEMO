@@ -31,25 +31,42 @@ const InfoBar = (props: Props) => {
     if (!file) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("video", file);
-    formData.append("workspaceId", workspaceId); // Send workspaceId to the API
+    toast.info("Preparing to upload...", { description: "Please wait." });
 
     try {
-      toast.info("Uploading...", {
-        description: "Your video is being uploaded.",
-      });
-      const response = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      // 1. Get the signature from our new backend endpoint
+      const signResponse = await axios.post("/api/upload/sign");
+      const { signature, timestamp, folder, apiKey } = signResponse.data;
+
+      // 2. Create FormData for the direct upload to Cloudinary
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", apiKey);
+      formData.append("signature", signature);
+      formData.append("timestamp", timestamp);
+      formData.append("folder", folder);
+
+      // 3. Upload DIRECTLY to Cloudinary's API
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload`;
+      const cloudinaryResponse = await axios.post(cloudinaryUrl, formData);
+
+      const videoData = cloudinaryResponse.data;
+
+      // 4. Now, call our OWN backend to save the video details to the database
+      // This reuses our existing upload endpoint, but without the file data
+      const saveResponse = await axios.post("/api/upload", {
+        public_id: videoData.public_id,
+        version: videoData.version,
+        signature: videoData.signature,
+        format: videoData.format,
+        original_filename: file.name,
+        workspaceId: workspaceId,
       });
 
-      if (response.status === 200) {
+      if (saveResponse.status === 200) {
         toast.success("Upload complete!", {
           description: "Your video is now processing.",
         });
-        // Invalidate queries to refresh the video list
         queryClient.invalidateQueries({ queryKey: ["user-videos"] });
         queryClient.invalidateQueries({ queryKey: ["workspace-folders"] });
       }
@@ -60,7 +77,6 @@ const InfoBar = (props: Props) => {
       });
     } finally {
       setIsUploading(false);
-      // Reset the input value to allow uploading the same file again
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
