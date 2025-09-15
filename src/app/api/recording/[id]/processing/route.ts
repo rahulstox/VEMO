@@ -14,20 +14,33 @@ export async function POST(
     // Step 1: Request body se `workspaceId` get karein.
     // Yeh desktop app se bheja jaana chahiye.
     const { filename, workspaceId } = body;
-
-    if (!filename || !workspaceId) {
+    if (!filename) {
       return NextResponse.json({
         status: 400,
-        message: "Filename and workspaceId are required.",
+        message: "Filename is required.",
+      });
+    }
+
+    // If workspaceId not provided, fallback to user's PERSONAL workspace
+    let targetWorkspaceId = workspaceId as string | undefined;
+    if (!targetWorkspaceId) {
+      const personal = await client.workSpace.findFirst({
+        where: { userId: id, type: "PERSONAL" },
+        select: { id: true },
+      });
+      targetWorkspaceId = personal?.id;
+    }
+    if (!targetWorkspaceId) {
+      return NextResponse.json({
+        status: 400,
+        message: "Workspace not found for user.",
       });
     }
 
     // Step 2: Hamesha personal workspace find karne ke bajaaye,
     // seedha provide ki gayi workspaceId ka istemaal karein.
     const startProcessingVideo = await client.workSpace.update({
-      where: {
-        id: workspaceId, // Yahan seedha workspaceId ka istemaal karein
-      },
+      where: { id: targetWorkspaceId },
       data: {
         videos: {
           create: {
