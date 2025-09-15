@@ -48,7 +48,7 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
         data: { workspace: isUserInWorkspace },
       };
     }
-      
+
     return {
       status: 404, // Use 404 to indicate not found/no access
       data: { workspace: null },
@@ -168,16 +168,19 @@ export const getWorkspaceFolders = async (workspaceId: string) => {
 // PURANE getAllUserVideos FUNCTION KO ISSE REPLACE KAREIN
 // src/actions/workspace.ts (Final version of this function)
 
-export const getAllUserVideos = async (id: string, type: 'workspace' | 'folder') => {
+export const getAllUserVideos = async (
+  id: string,
+  type: "workspace" | "folder"
+) => {
   try {
     const user = await currentUser();
     if (!user) {
       return { status: 403, message: "Unauthorized !, user not found" };
     }
 
-    const whereClause = 
-      type === 'folder' 
-        ? { folderId: id } 
+    const whereClause =
+      type === "folder"
+        ? { folderId: id }
         : { workSpaceId: id, folderId: null };
 
     const videos = await client.video.findMany({
@@ -392,7 +395,8 @@ export const getPreviewVideo = async (videoId: string) => {
         description: true,
         processing: true,
         views: true,
-        summery: true,
+        summary: true,
+        summary: true,
         User: {
           select: {
             firstname: true,

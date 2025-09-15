@@ -55,7 +55,7 @@ const AiTools = ({ videoId }: Props) => {
   const workspaceId = pathname.split("/")[2];
 
   // Check if the video already has a transcript
-  const hasTranscript = !!videoData?.summery;
+  const hasTranscript = !!videoData?.summary;
 
   return (
     <TabsContent value="Ai tools">

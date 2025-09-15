@@ -40,8 +40,8 @@ export const runAiTool = async (videoId: string, task: "summarize") => {
       where: { id: videoId },
     });
 
-    // The 'summery' field in your schema holds the transcript
-    if (!video || !video.summery) {
+    // The 'summary' field in your schema holds the transcript
+    if (!video || !video.summary) {
       return {
         status: 404,
         message:
@@ -53,7 +53,7 @@ export const runAiTool = async (videoId: string, task: "summarize") => {
 
     if (task === "summarize") {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-const prompt = `You are a creative assistant for a video platform called VEMO. Your task is to analyze the following video transcript and generate a compelling title and a concise, engaging summary.
+      const prompt = `You are a creative assistant for a video platform called VEMO. Your task is to analyze the following video transcript and generate a compelling title and a concise, engaging summary.
 
 **Instructions:**
 1.  **Title:** Must be creative, relevant to the content, and no more than 6 words.
@@ -61,7 +61,7 @@ const prompt = `You are a creative assistant for a video platform called VEMO. Y
 3.  **Format:** Your response MUST be a valid JSON object with ONLY two keys: "title" and "description". Do not include any other text, explanations, or markdown formatting like \`\`\`json.
 
 **Transcript:**
-"${video.summery}"`;
+"${video.summary}"`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -148,7 +148,7 @@ export const transcribeVideo = async (videoId: string) => {
         await client.video.update({
           where: { id: videoId },
           data: {
-            summery: transcriptData.text, // Save the transcript to the 'summery' field
+            summary: transcriptData.text, // Save the transcript to the 'summary' field
             processing: false, // Mark the video as fully processed
           },
         });
@@ -178,7 +178,10 @@ export const transcribeVideo = async (videoId: string) => {
 
 // src/actions/ai.ts
 
-export const updateTranscript = async (videoId: string, newTranscript: string) => {
+export const updateTranscript = async (
+  videoId: string,
+  newTranscript: string
+) => {
   try {
     const user = await currentUser();
     if (!user) {
@@ -191,7 +194,7 @@ export const updateTranscript = async (videoId: string, newTranscript: string) =
     const updatedVideo = await client.video.update({
       where: { id: videoId },
       data: {
-        summery: newTranscript, // Update the 'summery' field
+        summary: newTranscript, // Update the 'summary' field
       },
     });
 
@@ -200,7 +203,6 @@ export const updateTranscript = async (videoId: string, newTranscript: string) =
     }
 
     return { status: 404, message: "Video not found." };
-
   } catch (error) {
     console.error("Update Transcript Error:", error);
     return { status: 500, message: "An internal error occurred." };

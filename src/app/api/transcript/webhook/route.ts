@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       await client.video.update({
         where: { id: videoId },
         data: {
-          summery: body.text,
+          summary: body.text,
           processing: false,
         },
       });
