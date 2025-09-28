@@ -85,7 +85,7 @@ const AiTools = ({ videoId }: Props) => {
         <div className="border-[1px] rounded-xl p-3 sm:p-4 gap-3 sm:gap-4 flex flex-col bg-[#1b0f1b7f]">
           <div className="flex items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-bold text-[#a22fe0]">
-              Opal AI
+              Vemo AI
             </h2>
             <StarsIcon color="#a22fe0" fill="#a22fe0" />
           </div>

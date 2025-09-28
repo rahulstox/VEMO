@@ -14,7 +14,7 @@ Problem Statement for Vemo:
 
 "Traditional text-based communication and follow-ups in business interactions are often inefficient, leading to miscommunication and lost opportunities. Existing video recording and sharing solutions either rely on third-party libraries, lack real-time engagement features, or are too complex for seamless integration into workflows. There is a need for a streamlined, high-quality video messaging platform that enables users to record, share, and manage videos effortlessly. Vemo aims to enhance business communication by providing real-time video recording, AI-powered summaries, collaboration tools, and instant sharing capabilities, improving outreach, engagement, and productivity."
 
-This aligns with Opal’s features and the challenges it solves.
+This aligns with Vemo’s features and the challenges it solves.
 
 ## Features
 

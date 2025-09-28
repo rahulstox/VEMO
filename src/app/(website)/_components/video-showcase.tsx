@@ -11,7 +11,7 @@ const videos = [
     id: "workspace",
     title: "Quick Workspace Tour",
     description: "Learn how to set up and navigate your VEMO workspace.",
-    src: "/workspace-tour.mp4",
+    src: "/WorksSpace-Tour.mp4",
     thumbnail: "/thumbnail-workspace.jpg",
   },
   {
@@ -19,7 +19,7 @@ const videos = [
     title: "Recording Your First Video",
     description:
       "Step-by-step guide to record and upload your first video with VEMO.",
-    src: "/collaboration.mp4",
+    src: "/recording.mp4",
     thumbnail: "/thumbnail-recording.jpg",
   },
   {

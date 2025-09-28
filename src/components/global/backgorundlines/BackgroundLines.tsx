@@ -12,7 +12,7 @@ export function BackgroundLinesDemo() {
       Record <br/> Share <br/> Collaborate
       </h2>
       <p className="max-w-xl mx-auto text-sm md:text-lg text-neutral-700 dark:text-neutral-400 text-center">
-      Opal is your all-in-one solution for video recording and sharing, designed for seamless collaboration.
+      Vemo is your all-in-one solution for video recording and sharing, designed for seamless collaboration.
 
       </p>
       <div className="flex flex-col md:flex-row gap-4 relative z-20">
