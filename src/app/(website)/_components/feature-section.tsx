@@ -37,7 +37,7 @@ export function FeatureSection() {
           </p>
           <div className="flex justify-center">
             <Image
-              src="/Record & upload videos.webp"
+              src="/Record & upload videos.jpg"
               alt="vemo video recording interface"
               width={800}
               height={450}
